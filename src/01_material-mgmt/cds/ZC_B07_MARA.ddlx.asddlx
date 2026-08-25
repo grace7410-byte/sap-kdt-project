@@ -1,0 +1,56 @@
+// ============================================================
+// 변경이력
+// 2026-08-13  최초 작성 (List Report/Object Page 어노테이션) — devlog: ../../../devlog/rap-dev/2026-08-13.md
+// ============================================================
+@Metadata.layer: #CUSTOMER
+@UI.headerInfo: {
+    typeName: '자재', typeNamePlural: '자재리스트'
+}
+annotate entity ZC_B07_MARA with
+{
+  @UI.facet: [ { id: 'idPlant', purpose: #STANDARD, position: 10,
+                label: '공장 정보', targetQualifier: 'PlantInfo',
+                type: #IDENTIFICATION_REFERENCE },
+                { id: 'idDetail', purpose: #STANDARD, position: 20,
+                label: '자재 상세정보', targetQualifier: 'DetailInfo',
+                type: #IDENTIFICATION_REFERENCE },
+                { id: 'idPrice', purpose: #STANDARD, position: 30,
+                label: '자재 가격', targetQualifier: 'PriceInfo',
+                type: #IDENTIFICATION_REFERENCE },
+                { id: 'idText', purpose: #STANDARD, position: 40,
+                label: '자재명', type: #LINEITEM_REFERENCE,
+                targetElement: '_MaraText' }
+             ]
+  MatUuid;
+
+  @UI: { lineItem: [ { position: 10, importance:#HIGH, label: '자재타입' } ],
+      identification: [ { qualifier: 'DetailInfo', position: 10, label: '자재타입' } ]}
+  Mtart;
+  @UI: { lineItem: [ { position: 20, importance:#MEDIUM, label: '공장(본사)' } ],
+      identification: [ { qualifier: 'PlantInfo', position: 10, label: '플랜트' } ]}
+  Werks;
+  @UI.lineItem: [ { position: 30, importance:#LOW, label: '공장(본사)명' } ]
+  WerksText;
+  @UI: { lineItem: [ { position: 40, importance:#HIGH, label: '자재번호' } ],
+      identification: [ { qualifier: 'DetailInfo', position: 20, label: '자재번호' } ]}
+  Matnr;
+  @UI: { lineItem: [ { position: 50, importance:#MEDIUM, label: '등록일 ' } ],
+      identification: [ { qualifier: 'DetailInfo', position: 30, label: '등록일 ' } ]}
+  Ersda;
+  @UI.hidden: true
+  MtartText;
+  @UI.identification: [ { qualifier: 'PlantInfo', position:20, label: '저장위치' } ]
+  Lgort;
+  @UI.hidden: true
+  LgortText;
+  @UI.identification: [ { qualifier: 'PriceInfo', position:10, label:'평가클래스' } ]
+  Bklas;
+  @UI.identification: [ { qualifier: 'PriceInfo', position:30, label:'표준가격' } ]
+  Stprs;
+  @UI.identification: [ { qualifier: 'PriceInfo', position:50, label:'표준가격단위' } ]
+  Peinh;
+  @UI.identification: [ { qualifier: 'PriceInfo', position:40, label:'통화' } ]
+  Waers;
+  @UI.identification: [ { qualifier: 'DetailInfo', position:40, label:'제품군' } ]
+  Spart;
+}

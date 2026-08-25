@@ -18,5 +18,6 @@ FS 문서: `00. 공통(자재타입_SearchHelp)_FS_v10`
 | Search Help | `ZI_B07_FDGRV_F4` | - | 공급업체 분류 Value Help | - |
 | Search Help | `ZI_B07_LFA1_F4` | ZTB07LFA1 | 공급업체 Value Help | - |
 | Search Help | `ZI_B07_MATNR_F4` | ZTB07MARA | 자재번호 Value Help | - |
+| Search Help | `ZI_B07_SPART_F4` | I_DomainFixedValueText (ZDB07SPART) | 제품군 Value Help (자재관리 신규 추가 필드) | [`ZI_B07_SPART_F4.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/00_common-searchhelp/cds/ZI_B07_SPART_F4.ddls.asddls) |
 
 > 네이밍 규칙: `ZI_B##_<Name>_F4`

@@ -203,5 +203,6 @@ CLASS lhc_maratext IMPLEMENTATION.
   ENDMETHOD.
 ENDCLASS.
 ```
+> 메시지 [`015`](../src/message-class.md#015): "Field &1 is required and cannot be empty."
 
 > 이 체크 로직은 최초에는 `SetLanguageDefault`(Determination on modify)로 Spras를 자동 채우는 방식으로 시도했으나 필수값 제약과 충돌해 실패했고, 이후 목표를 "MaraText 자식 레코드 존재 검증"으로 바꿔 위 Validation으로 정리되었다 — 자세한 경위는 devlog 2026-08-24(작성 예정) 참고.

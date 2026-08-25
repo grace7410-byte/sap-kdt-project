@@ -2,6 +2,7 @@
 // 변경이력
 // 2026-08-14  최초 작성 (SetInitialDefault, SetReadOnly) — devlog: ../../../devlog/rap-dev/2026-08-14.md
 // 2026-08-17  Validation 메서드 실제 이름 확인 후 반영 (CheckInit/CheckMaterial/CheckSLoc/CheckCreated), get_instance_authorizations 덤프 이슈 확인 — devlog: ../../../devlog/rap-dev/2026-08-17.md
+// 2026-08-20  get_instance_features 추가 (WAERS 동적 제어, 항상 read-only 버전). 8/21에 조건부 버전으로 개선 예정 — devlog: ../../../devlog/rap-dev/2026-08-20.md
 // ============================================================
 // NOTE: CheckInit/CheckCreated는 구현 완료 상태이나 코드 본문은 미확보라 선언만 추가.
 //       CheckMaterial/CheckSLoc은 2026-08-17 기준 실제로 본문이 비어있는 상태.
@@ -10,6 +11,9 @@ CLASS lhc_ZR_B07_MARA DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
     METHODS get_instance_authorizations FOR INSTANCE AUTHORIZATION
       IMPORTING keys REQUEST requested_authorizations FOR zr_b07_mara RESULT result.
+
+    METHODS get_instance_features FOR INSTANCE FEATURES
+      IMPORTING keys REQUEST requested_features FOR zr_b07_mara RESULT result.
 
     METHODS SetInitialDefault FOR DETERMINE ON MODIFY
       IMPORTING keys FOR zr_b07_mara~SetInitialDefault.
@@ -35,6 +39,15 @@ CLASS lhc_ZR_B07_MARA IMPLEMENTATION.
   " "요청한 키에 대한 권한 결과가 없다"고 판단해 BEHAVIOR_CONTRACT_VIOLATION 덤프를 던짐.
   " 결국 4번(Determination/Validation) 쪽 문제로 되돌아옴 — 해결 못한 이슈로 남음.
   METHOD get_instance_authorizations.
+  ENDMETHOD.
+
+  " 2026-08-20: WAERS 정적 readonly가 Stprs(편집가능 금액필드)와 모순되어 활성화 에러 발생
+  " ("A static read-only field 'WAERS' is not allowed for an editable amount field")
+  " → 동적 제어(features)로 전환. 지금은 항상 read-only. 8/21에 신규/수정 조건부로 개선 예정.
+  METHOD get_instance_features.
+    result = VALUE #( FOR key IN keys
+                         ( %tky          = key-%tky
+                           %field-Waers  = if_abap_behv=>fc-f-read_only ) ).
   ENDMETHOD.
 
   METHOD SetInitialDefault.

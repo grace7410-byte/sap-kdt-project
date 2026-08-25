@@ -4,6 +4,7 @@
 // 2026-08-17  실제 구현 상태 확인 후 정정: Waers readonly 필드는 주석 처리된 상태였음, Validation 메서드 실제 이름 확인 — devlog: ../../../devlog/rap-dev/2026-08-17.md
 // 2026-08-20  WAERS 에러 해결: 정적 field(readonly) 대신 동적 field(features:instance)로 전환 — devlog: ../../../devlog/rap-dev/2026-08-20.md
 // 2026-08-21  validation CheckSpart 추가, ZI_B07_MARATEXT(alias MaraText) 자식 Behavior 최초 작성 — devlog: ../../../devlog/rap-dev/2026-08-21.md
+// 2026-08-24  SetLanguageDefault determination 제거, CheckMaraTextExist validation으로 전환 확정 — devlog: ../../../devlog/rap-dev/2026-08-24.md
 // ============================================================
 managed implementation in class zbp_r_b07_mara unique;
 strict ( 2 );

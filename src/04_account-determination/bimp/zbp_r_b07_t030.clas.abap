@@ -1,6 +1,8 @@
 *=============================================================
 * 변경이력
 * 2026-08-20  최초 작성, SetSequenceNumber/CheckAccountExist 확인 — devlog: ../../../devlog/rap-dev/2026-08-20.md
+* 2026-08-24  SetShkzg 최종 로직 재확인 — 인터페이스 뷰(zi_b07_debit_credit) 연결 방식은 실패, 
+*             dd07t 직접 조회 방식이 처음부터 맞는 접근이었음을 확인. 코드 변경 없음 — devlog: .../2026-08-24.md
 *=============================================================
 CLASS lhc_ZR_B07_T030 DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.

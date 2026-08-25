@@ -5,6 +5,7 @@
 // 2026-08-20  get_instance_features 추가 (WAERS 동적 제어, 항상 read-only 버전) — devlog: ../../../devlog/rap-dev/2026-08-20.md
 // 2026-08-21  get_instance_features 조건부 버전으로 개선(신규=편집가능/수정=readonly), SetReadOnly 무한루프 수정,
 //             SetLanguageDefault 신규 추가(+무한루프 방지), CheckSpart 신규 추가 — devlog: ../../../devlog/rap-dev/2026-08-21.md
+// 2026-08-24  SetLanguageDefault determination 제거, CheckMaraTextExist validation으로 전환 확정 — devlog: ../../../devlog/rap-dev/2026-08-24.md
 // ============================================================
 // NOTE: CheckInit/CheckCreated는 구현 완료 상태이나 코드 본문은 미확보라 선언만 추가.
 //       CheckMaterial/CheckSLoc은 2026-08-17 기준 실제로 본문이 비어있는 상태.

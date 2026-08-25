@@ -1,20 +1,20 @@
 // ============================================================
 // 변경이력
 // 2026-08-18  최초 작성 (SetInitialDefault, CheckInit, SetVendorNumber) — devlog: ../../../devlog/rap-dev/2026-08-18.md
+// 2026-08-21  SetVendorNumber 채번 오류 수정: Prefix('V'+6자리)를 로직에서 직접 구성,
+//             Number Range 오브젝트명 ZNR_B07LIFNR → ZNRB07_LIF로 변경, OTHERS일 때 CONTINUE 대신 기본값('01') 사용 — devlog: ../../../devlog/rap-dev/2026-08-21.md
 // ============================================================
-// NOTE: SetVendorNumber(자동채번)는 8/18 기준 구현은 됐지만, 다음 devlog에서
-//       "Lifnr 채번 오류"로 다시 언급됨 — 정확한 오류 원인은 미확인 상태.
 CLASS lhc_ZR_B07_LFA1 DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.
 
     METHODS SetInitialDefault FOR DETERMINE ON MODIFY
       IMPORTING keys FOR zr_b07_lfa1~SetInitialDefault.
 
-    METHODS SetVendorNumber FOR DETERMINE ON SAVE
-      IMPORTING keys FOR zr_b07_lfa1~SetVendorNumber.
-
     METHODS CheckInit FOR VALIDATE ON SAVE
       IMPORTING keys FOR zr_b07_lfa1~CheckInit.
+
+    METHODS SetVendorNumber FOR DETERMINE ON SAVE
+      IMPORTING keys FOR zr_b07_lfa1~SetVendorNumber.
 
 ENDCLASS.
 
@@ -64,6 +64,9 @@ CLASS lhc_ZR_B07_LFA1 IMPLEMENTATION.
     ENDLOOP.
   ENDMETHOD.
 
+  " 2026-08-21: 채번 오류 수정. Prefix('V')를 Number Range 서브타입으로 지정하려 했으나
+  " 연결 가능한 도메인/데이터 엘리먼트를 새로 만들어야 해서, 대신 숫자만 6자리로 채번한 뒤
+  " 로직에서 뒤 6자리를 잘라 앞에 'V'를 붙이는 방식으로 우회.
   METHOD SetVendorNumber.
     DATA: lv_nr_range TYPE inri-nrrangenr,
           lv_number   TYPE inri-nr,
@@ -87,29 +90,33 @@ CLASS lhc_ZR_B07_LFA1 IMPLEMENTATION.
         WHEN 'A5'. lv_nr_range = '05'.
         WHEN 'A6'. lv_nr_range = '06'.
         WHEN OTHERS.
-          " 분류 없는 경우
-          CONTINUE.
+          " 분류 없는 경우 기본값 사용 (이전엔 CONTINUE로 건너뛰어서 채번이 아예 안 되는 게 문제였음)
+          lv_nr_range = '01'.
       ENDCASE.
 
       CALL FUNCTION 'NUMBER_GET_NEXT' " 채번
         EXPORTING
           nr_range_nr = lv_nr_range
-          object      = 'ZNR_B07LIFNR'
+          object      = 'ZNRB07_LIF'
         IMPORTING
           number      = lv_number
         EXCEPTIONS
           OTHERS      = 1.
 
-      IF sy-subrc = 0.
+      IF sy-subrc = 0. " prefix 하려면 뒤에서 6자리 끌어와서 앞에 V 붙여주기
+        DATA(lv_seq) = substring( val = lv_number
+                          off = strlen( lv_number ) - 6 ).
+        DATA(lv_lifnr) = |V{ lv_seq }|.
+
         APPEND VALUE #( %tky = ls_vendor-%tky
-                         Lifnr = lv_number ) TO lt_update.
+                         Lifnr = lv_lifnr ) TO lt_update.
       ELSE.
         APPEND VALUE #( %tky = ls_vendor-%tky
                      %msg = new_message( id = 'ZMSGE_B07'
                                           number = '009'
                                           v1 = 'Vendor Number Range'
                                           severity = if_abap_behv_message=>severity-error ) )
-        TO reported-zr_b07_lfa1..
+        TO reported-zr_b07_lfa1.
       ENDIF.
     ENDLOOP.
 

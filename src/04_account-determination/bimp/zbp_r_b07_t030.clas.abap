@@ -1,3 +1,7 @@
+*=============================================================
+* 변경이력
+* 2026-08-20  최초 작성, SetSequenceNumber/CheckAccountExist 확인 — devlog: ../../../devlog/rap-dev/2026-08-20.md
+*=============================================================
 CLASS lhc_ZR_B07_T030 DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.
 

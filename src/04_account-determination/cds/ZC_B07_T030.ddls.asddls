@@ -1,3 +1,7 @@
+// ============================================================
+// 변경이력
+// 2026-08-20  최초 작성, Root BO View(ZR_B07_T030) 신설에 맞춤 — devlog: ../../../devlog/rap-dev/2026-08-20.md
+// ============================================================
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: '회계계정결정 Projection View'
 @Metadata.ignorePropagatedAnnotations: true

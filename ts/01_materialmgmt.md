@@ -161,6 +161,9 @@ METHOD CheckSpart.
   ENDLOOP.
 ENDMETHOD.
 ```
+> 메시지 [`015`](../src/message-class.md#015): "Field &1 is required and cannot be empty." · [`021`](../src/message-class.md#021): "In material type &1, product group &2 cannot be used."
+
+
 
 ### 2.3.4. RAP 자재 Page / View 기능 추가 (언어 Spras 및 자재명 MaraText 체크 로직)
 

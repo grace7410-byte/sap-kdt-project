@@ -1,0 +1,40 @@
+managed implementation in class zbp_r_b07_t030 unique;
+strict ( 2 );
+
+define behavior for ZR_B07_T030 //alias <alias_name>
+persistent table ztb07t030
+lock master
+authorization master ( instance )
+etag master ChangedAt
+{
+  field ( numbering : managed, readonly ) MapUuid;
+  field ( mandatory : create ) Bwart, Ktosl, Saknr;
+  field ( readonly : update ) Bwart, Ktosl, Glact;
+  field ( readonly ) Seqnr, CreationAt, CreatedBy, ChangedBy, ChangedAt;
+
+  create;
+  update;
+  delete;
+
+  determination SetSequenceNumber on save { create; }
+  validation CheckAccountExist on save { create; update; }
+
+  // 매핑 로직 추가
+  determination SetShkzg on modify { field Bschl; }
+
+  mapping for ztb07t030 corresponding
+    {
+//      Bklas      = bklas;
+//      Bschl      = bschl;
+//      Bwart      = bwart;
+//      Ktosl      = ktosl;
+//      Saknr      = saknr;
+//      Seqnr      = seqnr;
+//      Shkzg      = shkzg;
+      ChangedAt  = changed_at;
+      ChangedBy  = changed_by;
+      CreatedBy  = created_by;
+      CreationAt = creation_at;
+      MapUuid    = map_uuid;
+    }
+}

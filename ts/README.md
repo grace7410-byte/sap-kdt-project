@@ -23,10 +23,10 @@
 
 0. [문서 개요](./README.md) - 이 문서
 1. [`[00] 공통` – 자재타입 등 Search Help](./00_common.md)
-2. [`[01] 자재관리`](./01_material-mgmt.md)
-3. [`[02] FI계정관리`](./02_fi-account.md)
+2. [`[01] 자재관리`](./01_materialmgmt.md)
+3. [`[02] FI계정관리`](./02_fiaccount.md)
 4. [`[03] 벤더(공급업체)관리`](./03_vendor.md)
-5. [`[04] 회계계정결정관리`](./04_account-determination.md)
+5. [`[04] 회계계정결정관리`](./04_accountdetermination.md)
 6. [종합 – 오류 해결 이력](./README.md#errorlog)
 7. [잔여 이슈 (다음 중간평가 반영 예정)](./README.md#remainingissues)
 

@@ -10,9 +10,10 @@ FS 문서: `02. FI계정관리_FS_v10` · RAP 방식: Managed / V2 OData (No Dra
 | Interface | `ZI_B07_SKA1TEXT` | ZTB07SKA1_T | 타 BO(벤더 BO 등)에서 FI 계정 Text를 참조하는 인터페이스 뷰 | [`ZI_B07_SKA1TEXT.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/02_fi-account/cds/ZI_B07_SKA1TEXT.ddls.asddls) |
 | Projection | `ZC_B07_SKA1` | ZR_B07_SKA1 | OData V2 노출용 Root (Redirect/정렬/검색조건 완료) | [`ZC_B07_SKA1.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/02_fi-account/cds/ZC_B07_SKA1.ddls.asddls) |
 | Projection | `ZC_B07_SKA1TEXT` | ZI_B07_SKA1TEXT | OData V2 노출용 Text Child (Redirect 완료) | [`ZC_B07_SKA1TEXT.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/02_fi-account/cds/ZC_B07_SKA1TEXT.ddls.asddls) |
-| Behavior Definition | `ZR_B07_SKA1` / `ZC_B07_SKA1` | - | Managed (No Draft) | - |
-| Behavior Implementation | `ZBP_R_B07_SKA1` | - | Validation/Determination 구현 클래스 | - |
-| Metadata Extension | `ZC_B07_SKA1` | - | List Report / Object Page Annotation | - |
+| Behavior Definition | `ZR_B07_SKA1` / `ZC_B07_SKA1` | - | Managed (No Draft). Field Control/Concurrency Control/Mapping 완료, 커스텀 Determination/Validation은 아직 없음 | [`ZR_B07_SKA1.bdef.asbdef`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/02_fi-account/bdef/ZR_B07_SKA1.bdef.asbdef), [`ZC_B07_SKA1.bdef.asbdef`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/02_fi-account/bdef/ZC_B07_SKA1.bdef.asbdef) |
+| Behavior Implementation | `ZBP_R_B07_SKA1` | - | 클래스 지정만 되어 있고 커스텀 로직은 아직 없음 (완전 Managed) | - |
+| Metadata Extension | `ZC_B07_SKA1` | - | List Report / Object Page Annotation | [`ZC_B07_SKA1.ddlx.asddlx`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/02_fi-account/cds/ZC_B07_SKA1.ddlx.asddlx) |
+| Metadata Extension | `ZC_B07_SKA1TEXT` | - | 계정명 Object Page Annotation | [`ZC_B07_SKA1TEXT.ddlx.asddlx`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/02_fi-account/cds/ZC_B07_SKA1TEXT.ddlx.asddlx) |
 | Service Definition | `ZUI_B07_SKA1` | - | ZC_B07_SKA1, ZC_B07_SKA1TEXT expose | - |
 | Service Binding | `ZUI_B07_SKA1_V2` | - | OData V2 – UI (Fiori Elements) | - |
 

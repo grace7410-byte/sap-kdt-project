@@ -21,7 +21,7 @@
 
 ## 목차
 
-0. [문서 개요](./README.md)
+0. [문서 개요](./README.md) - 이 문서
 1. [`[00] 공통` – 자재타입 등 Search Help](./00_common.md)
 2. [`[01] 자재관리`](./01_material-mgmt.md)
 3. [`[02] FI계정관리`](./02_fi-account.md)

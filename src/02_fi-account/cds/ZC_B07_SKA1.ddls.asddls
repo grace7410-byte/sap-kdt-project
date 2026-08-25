@@ -1,6 +1,7 @@
 // ============================================================
 // 변경이력
 // 2026-08-16  최초 작성 (Redirect + 필드순서/Sort/검색조건 반영, MARA 패턴 참고) — devlog: ../../../devlog/rap-dev/2026-08-16.md
+// 2026-08-21  회사코드/조정계정유형 서치헬프 및 텍스트 배치 반영 — devlog: ../../../devlog/rap-dev/2026-08-21.md
 // ============================================================
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'FI 계정 Projection View'
@@ -37,9 +38,28 @@ define root view entity ZC_B07_SKA1
       @UI.textArrangement: #TEXT_LAST
       Saknr,
 
+      /********* 회사코드 ************/
+      // 서치헬프
+      @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_B07_BUKRS_F4', element: 'CompanyCode' } }]
+      @ObjectModel.text.element: ['BukrsText'] // 회사코드와 코드명 함께 띄우기
+      @UI.textArrangement: #TEXT_FIRST
       Bukrs,
+      BukrsText,
+
+      /********* 통화 ************/
+      // 서치헬프
+      @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_B07_WAERS_F4', element: 'Currency' } }]
       Waers,
+
+      /********* 조정계정 유형 ************/
+      // 서치헬프
+      @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_B07_MITKZ_F4', element: 'ReconciliationAccountType' } }]
+      // 텍스트
+      @ObjectModel.text.element: ['MitkzText'] // 조정계정 유형과 유형명 함께 띄우기
+      @UI.textArrangement: #TEXT_FIRST
       Mitkz,
+      MitkzText,
+
       Xloev,
       CreatedBy,
       CreationAt,

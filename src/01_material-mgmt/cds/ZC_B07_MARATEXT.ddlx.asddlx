@@ -1,0 +1,30 @@
+// ============================================================
+// 변경이력
+// 2026-08-13  최초 작성 (Object Page 어노테이션) — devlog: ../../../devlog/rap-dev/2026-08-13.md
+// ============================================================
+@Metadata.layer: #CUSTOMER
+@UI.headerInfo: {
+    typeName: '자재명 상세',
+    typeNamePlural: '자재명',
+    title: { value: 'Maktx' }
+}
+annotate entity ZC_B07_MARATEXT with
+{
+  @UI.facet: [
+      {
+        id: 'idTextDetail',
+        purpose: #STANDARD,
+        type: #IDENTIFICATION_REFERENCE,
+        label: '자재명 상세 정보',
+        position: 10
+      }
+    ]
+  @UI: { lineItem: [ { position: 20, importance:#HIGH, label: '언어' } ],
+      identification: [ { position: 20, label: '언어' } ]}
+  Spras;
+  @UI: { lineItem: [ { position: 10, importance:#HIGH, label: '자재명' } ],
+      identification: [ { position: 10, label: '자재명' } ]}
+  Maktx;
+  /* Associations */
+  //  _Mara;
+}

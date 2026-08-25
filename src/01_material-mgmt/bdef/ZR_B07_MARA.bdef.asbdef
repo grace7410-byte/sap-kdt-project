@@ -1,0 +1,52 @@
+// ============================================================
+// 변경이력
+// 2026-08-13  최초 골격 (Draft/Etag/Mapping) — devlog: ../../../devlog/rap-dev/2026-08-13.md
+// 2026-08-14  Field Control + Determination(SetInitialDefault/SetReadOnly) 추가 — devlog: ../../../devlog/rap-dev/2026-08-14.md
+// ============================================================
+// NOTE: managed implementation 클래스명은 프로젝트 네이밍 규칙(zbp_r_b07_xxx) 기반 추정치입니다.
+// Validation 로직(validate_matnr 등)은 8/14 기준 이름만 정해지고 코드는 미완성 상태라 TODO로 남겨둡니다.
+managed implementation in class zbp_r_b07_mara unique;
+
+define behavior for ZR_B07_MARA
+persistent table ztb07mara
+lock master
+authorization master ( instance )
+etag master LocChangedAt
+total etag ChangedAt
+with draft
+{
+  field ( numbering : managed, readonly ) MatUuid;
+  field ( mandatory : create ) Werks, Lgort, Mtart, Bklas, Matnr;
+  field ( readonly ) Waers;
+  field ( readonly : update ) Werks, Lgort, Mtart, Bklas, Ersda, Matnr;
+
+  create;
+  update;
+  delete;
+
+  association _MaraText { create; with draft; }
+
+  determination SetInitialDefault on modify { create; }
+  determination SetReadOnly on save { create; }
+
+  // TODO: Validation 4종(필수값 누락/Matnr 중복/플랜트-저장위치 정합성/Ersda 범위)
+  //       및 draft determine action Prepare 연동은 코드 확정 후 반영 예정
+
+  draft table ztb07mara_d;
+
+  draft action Edit;
+  draft action Activate;
+  draft action Resume;
+  draft action Discard;
+  draft determine action Prepare;
+
+  mapping for ztb07mara corresponding
+    {
+      ChangedAt    = changed_at;
+      ChangedBy    = changed_by;
+      CreatedBy    = created_by;
+      CreationAt   = creation_at;
+      LocChangedAt = loc_changed_at;
+      MatUuid      = mat_uuid;
+    }
+}

@@ -1,0 +1,32 @@
+// ============================================================
+// 변경이력
+// 2026-08-14  최초 작성 — devlog: ../../../devlog/rap-dev/2026-08-14.md
+// ============================================================
+projection;
+strict ( 2 );
+use draft;
+
+define behavior for ZC_B07_MARA //alias <alias_name>
+{
+
+  use create;
+  use update;
+  use delete;
+
+  use action Edit;
+  use action Activate;
+  use action Resume;
+  use action Discard;
+  use action Prepare;
+
+  use association _MaraText { create; with draft; }
+}
+
+define behavior for ZC_B07_MARATEXT //alias <alias_name>
+{
+
+  use update;
+  use delete;
+
+  use association _Mara { with draft; }
+}

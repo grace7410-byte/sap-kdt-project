@@ -4,11 +4,11 @@ FS 문서: `04. 회계계정결정관리_FS_v10` · RAP 방식: Managed / V2 ODa
 
 | 구분 | 오브젝트명 | 베이스 | 설명 | 코드 |
 | --- | --- | --- | --- | --- |
-| Table | `ZTB07T030` | - | 회계결정코드 마스터 (이동유형/순번 PK) | [코드 보기](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/04_account-determination/tables/ZTB07T030.tabl.asddls) |
+| Table | `ZTB07T030` | - | 회계결정코드 마스터 (이동유형/순번 PK) | [`ZTB07T030.tabl.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/04_account-determination/tables/ZTB07T030.tabl.asddls) |
 | Root BO | `ZR_B07_T030` | ZTB07T030 | RAP Root Entity | - |
-| Projection | `ZC_B07_T030` | ZR_B07_T030 | OData V2 노출용 Root (검색조건/정렬/텍스트 어노테이션 포함) | [코드 보기](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/04_account-determination/cds/ZC_B07_T030.ddls.asddls) |
-| Behavior Definition | `ZR_B07_T030` | ZTB07T030 | Managed, strict(2), No Draft | [코드 보기](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/04_account-determination/bdef/ZR_B07_T030.bdef.asbdef) |
-| Behavior Implementation | `ZBP_R_B07_T030` | - | 순번 자동채번, 계정 존재 검증, 차/대변 텍스트 결정 | [코드 보기](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/04_account-determination/bimp/zbp_r_b07_t030.clas.abap) |
+| Projection | `ZC_B07_T030` | ZR_B07_T030 | OData V2 노출용 Root (검색조건/정렬/텍스트 어노테이션 포함) | [`ZC_B07_T030.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/04_account-determination/cds/ZC_B07_T030.ddls.asddls) |
+| Behavior Definition | `ZR_B07_T030` | ZTB07T030 | Managed, strict(2), No Draft | [`ZR_B07_T030.bdef.asbdef`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/04_account-determination/bdef/ZR_B07_T030.bdef.asbdef) |
+| Behavior Implementation | `ZBP_R_B07_T030` | - | 순번 자동채번, 계정 존재 검증, 차/대변 텍스트 결정 | [`zbp_r_b07_t030.clas.abap`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/04_account-determination/bimp/zbp_r_b07_t030.clas.abap) |
 | Service Definition | `ZUI_B07_T030` | - | ZC_B07_T030 expose | - |
 | Service Binding | `ZUI_B07_T030_V2` | - | OData V2 – UI (Fiori Elements) | - |
 

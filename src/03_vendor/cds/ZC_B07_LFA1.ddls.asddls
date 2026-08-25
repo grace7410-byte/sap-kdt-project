@@ -49,7 +49,7 @@ define root view entity ZC_B07_LFA1
       @ObjectModel.text.element: ['Glactxt']
       @UI.textArrangement: #TEXT_FIRST
       Glact,
-      Glactx,
+      Glactxt,
       /*********   거래종료   ************/
       Loevm,
 

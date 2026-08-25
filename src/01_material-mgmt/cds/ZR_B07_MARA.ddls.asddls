@@ -2,6 +2,7 @@
 // 변경이력
 // 2026-08-12  최초 작성 (필드 일부 미반영, 진행중) — devlog: ../../../devlog/rap-dev/2026-08-12.md
 // 2026-08-13  자재타입/플랜트 텍스트 Association 추가 (_TypeText, _PlantText) — devlog: ../../../devlog/rap-dev/2026-08-13.md
+// 2026-08-21  제품군(Spart) 필드 추가 — devlog: ../../../devlog/rap-dev/2026-08-21.md
 // ============================================================
 @AbapCatalog.viewEnhancementCategory: [#NONE]
 @AccessControl.authorizationCheck: #NOT_REQUIRED
@@ -19,6 +20,8 @@ define root view entity ZR_B07_MARA
 
   // TODO: 전체 필드 목록 반영 예정
   // (matnr, mtart, bklas, meins, peinh, lgort, werks, ersda, matfi 등)
+
+  spart           as Spart,
 
   @Semantics.amount.currencyCode: 'Waers'
   stprs           as Stprs,

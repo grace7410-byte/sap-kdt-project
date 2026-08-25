@@ -1,0 +1,79 @@
+// ============================================================
+// 변경이력
+// 2026-08-20  최초 작성 — devlog: ../../../devlog/rap-dev/2026-08-20.md
+// ============================================================
+@Metadata.layer: #CUSTOMER
+@UI.headerInfo: {
+    typeName: '회계계정결정',
+    typeNamePlural: '회계 계정 결정 코드 리스트',
+//    typeImageUrl: 'sap-icon://accounting-document-verification',
+    title: { type: #STANDARD, value: 'Seqnr' },
+    description: { type: #STANDARD, value: 'Bwart' }
+}
+annotate entity ZC_B07_T030 with
+{
+  @UI.facet: [ { id: 'idMappingInfo', purpose: #STANDARD, position: 10,
+                label: '회계결정 정보', targetQualifier: 'MappingInfo',
+                type: #IDENTIFICATION_REFERENCE },
+                { id: 'idAccountInfo', purpose: #STANDARD, position: 20,
+                label: '계정 정보', targetQualifier: 'AccountInfo',
+                type: #IDENTIFICATION_REFERENCE }
+             ]
+
+  @UI.hidden: true
+  MapUuid;
+  @UI: {
+  lineItem:      [ { position: 10, importance: #HIGH, label: '이동유형' } ],
+  identification: [ { qualifier: 'MappingInfo', position: 10, label: '이동유형' } ]
+  }
+  Bwart;
+  @UI.hidden: true
+  Bwatx;
+  @UI: {
+  lineItem:      [ { position: 20, importance: #HIGH, label: '순번' } ],
+  identification: [ { qualifier: 'MappingInfo', position: 20, label: '순번' } ]
+  }
+  Seqnr;
+  @UI: {
+  lineItem:      [ { position: 30, importance: #HIGH, label: '회계결정코드' } ],
+  identification: [ { qualifier: 'MappingInfo', position: 30, label: '회계결정코드' } ]
+  }
+  Ktosl;
+  @UI.hidden: true
+  Ktotx;
+  @UI: {
+  lineItem:      [ { position: 40, importance: #HIGH, label: '자재평가' } ],
+  identification: [ { qualifier: 'MappingInfo', position: 40, label: '자재평가' } ]
+  }
+  Bklas;
+  @UI.hidden: true
+  Bkbez;
+  @UI.identification: [ { qualifier: 'AccountInfo', position: 10, label: '계정 타입' } ]
+  Glact;
+  @UI.hidden: true
+  Glatx;
+  @UI: {
+  lineItem:      [ { position: 50, importance: #HIGH, label: '계정' } ],
+  identification: [ { qualifier: 'AccountInfo', position: 20 } ]
+  }
+  Saknr;
+  @UI.hidden: true
+  Saktx;
+  @UI.identification: [ { qualifier: 'AccountInfo', position: 30, label: '전기키' } ]
+  Bschl;
+  @UI.hidden: true
+  Bsctx;
+  @UI.identification: [ { qualifier: 'AccountInfo', position: 40, label: '차변/대변' } ]
+  Shkzg;
+  @UI.hidden: true
+  Shktx;
+  @UI.hidden: true
+  CreatedBy;
+  @UI.hidden: true
+  CreationAt;
+  @UI.hidden: true
+  ChangedBy;
+  @UI.hidden: true
+  ChangedAt;
+
+}

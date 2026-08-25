@@ -6,10 +6,10 @@ FS 문서: `01. 자재관리_FS_v10` · RAP 방식: Managed / V4 OData / With Dr
 | --- | --- | --- | --- | --- |
 | Table | `ZTB07MARA` | - | 자재 마스터 (UUID PK, 자재코드/유형/그룹/가격/보관위치 등) | - |
 | Text Table | `ZTB07MARA_T` | - | 자재명 다국어 텍스트 (SPRAS 기반) | - |
-| Root BO | `ZR_B07_MARA` | ZTB07MARA | RAP Root Entity, Text Table Composition 포함 | - |
-| Interface | `ZI_B07_MARATEXT` | ZTB07MARA_T | 타 BO에서 자재 Text를 참조할 때 사용하는 인터페이스 뷰 | - |
-| Projection | `ZC_B07_MARA` | ZR_B07_MARA | OData V4 노출용 Root (List Report/Object Page) | - |
-| Projection | `ZC_B07_MARATEXT` | ZI_B07_MARATEXT | OData V4 노출용 Text Child | - |
+| Root BO | `ZR_B07_MARA` | ZTB07MARA | RAP Root Entity, Text Table Composition 포함 (필드 일부 미반영, 진행중) | [`ZR_B07_MARA.ddls.asddls`](../src/01_material-mgmt/cds/ZR_B07_MARA.ddls.asddls) |
+| Interface | `ZI_B07_MARATEXT` | ZTB07MARA_T | 타 BO에서 자재 Text를 참조할 때 사용하는 인터페이스 뷰 | [`ZI_B07_MARATEXT.ddls.asddls`](../src/01_material-mgmt/cds/ZI_B07_MARATEXT.ddls.asddls) |
+| Projection | `ZC_B07_MARA` | ZR_B07_MARA | OData V4 노출용 Root (List Report/Object Page, 필드 일부 미반영) | [`ZC_B07_MARA.ddls.asddls`](../src/01_material-mgmt/cds/ZC_B07_MARA.ddls.asddls) |
+| Projection | `ZC_B07_MARATEXT` | ZI_B07_MARATEXT | OData V4 노출용 Text Child (Redirect 미처리, 8/13 예정) | [`ZC_B07_MARATEXT.ddls.asddls`](../src/01_material-mgmt/cds/ZC_B07_MARATEXT.ddls.asddls) |
 | Behavior Definition | `ZR_B07_MARA` / `ZC_B07_MARA` | - | Managed, with draft | - |
 | Behavior Implementation | `ZBP_R_B07_MARA` | - | Validation/Determination 구현 클래스 | - |
 | Metadata Extension | `ZC_B07_MARA` | - | List Report / Object Page Annotation | - |

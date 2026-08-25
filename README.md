@@ -2,6 +2,8 @@
 
 SAP S/4HANA RAP(ABAP RESTful Application Programming Model) 기반 프로젝트를 진행하며 남기는 개인 개발일지 · 오브젝트 카탈로그 · 소스 저장소입니다.
 
+---
+
 ## 폴더 구조
 
 | 폴더 | 내용 |
@@ -12,6 +14,8 @@ SAP S/4HANA RAP(ABAP RESTful Application Programming Model) 기반 프로젝트�
 | [`devlog/`](./devlog) | 날짜별 개발일지 · 모듈 실습 로그 · 재사용 가이드 |
 | `images/` | 개발일지용 스크린샷 (날짜별 하위 폴더) |
 
+---
+
 ## devlog 하위 구분
 
 - **`devlog/rap-dev/`** — CDS/BDEF 등 RAP 오브젝트 개발일지 (문제→해결 중심)
@@ -20,6 +24,7 @@ SAP S/4HANA RAP(ABAP RESTful Application Programming Model) 기반 프로젝트�
 
 각 폴더의 `_template.md`를 복사해서 새 글을 작성합니다.
 
+---
 
 ## 오브젝트 네이밍 규칙
 
@@ -35,6 +40,8 @@ SAP S/4HANA RAP(ABAP RESTful Application Programming Model) 기반 프로젝트�
 | `ZI_B##_XXX_F4` | Search Help View | Value Help용 CDS |
 
 > 이 프로젝트에서 `##`은 `07`로 고정되어 사용됩니다 (예: `ZR_B07_MARA`).
+
+---
 
 ## 다루는 모듈 (FS 기준)
 

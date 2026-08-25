@@ -1,56 +1,106 @@
 // ============================================================
 // 변경이력
 // 2026-08-14  최초 작성 (8/13 draft/etag/mapping 내용 + 8/14 field control/determination 통합) — devlog: ../../../devlog/rap-dev/2026-08-14.md
-// 2026-08-17  실제 구현 상태 확인 후 정정: Waers readonly 필드는 주석 처리된 상태였음, Validation 메서드 실제 이름 확인(CheckInit/CheckMaterial/CheckSLoc/CheckCreated) — devlog: ../../../devlog/rap-dev/2026-08-17.md
-// 2026-08-20  WAERS 에러 해결: 정적 field(readonly) 대신 동적 field(features:instance)로 전환 (Stprs가 편집가능 금액필드라 정적 readonly와 모순 발생) — devlog: ../../../devlog/rap-dev/2026-08-20.md
+// 2026-08-17  실제 구현 상태 확인 후 정정: Waers readonly 필드는 주석 처리된 상태였음, Validation 메서드 실제 이름 확인 — devlog: ../../../devlog/rap-dev/2026-08-17.md
+// 2026-08-20  WAERS 에러 해결: 정적 field(readonly) 대신 동적 field(features:instance)로 전환 — devlog: ../../../devlog/rap-dev/2026-08-20.md
+// 2026-08-21  validation CheckSpart 추가, ZI_B07_MARATEXT(alias MaraText) 자식 Behavior 최초 작성 — devlog: ../../../devlog/rap-dev/2026-08-21.md
 // ============================================================
-// NOTE: managed implementation 클래스명은 프로젝트 네이밍 규칙(zbp_r_b07_xxx) 기반 추정치입니다.
 managed implementation in class zbp_r_b07_mara unique;
+strict ( 2 );
+with draft;
 
-define behavior for ZR_B07_MARA
+define behavior for zr_b07_mara //alias <alias_name>
 persistent table ztb07mara
+draft table ztb07mara_d
 lock master
+total etag ChangedAt
 authorization master ( instance )
 etag master LocChangedAt
-total etag ChangedAt
-with draft
 {
-  field ( numbering : managed, readonly ) MatUuid;
-  field ( mandatory : create ) Werks, Lgort, Mtart, Bklas, Matnr;
-  field ( features : instance ) Waers; -- 2026-08-20: 동적 제어로 전환 (get_instance_features)
-  field ( readonly : update ) Werks, Lgort, Mtart, Bklas, Ersda, Matnr;
-
   create;
   update;
   delete;
+  // Features 동적 제어
+  field ( features : instance ) Waers, Werks, Lgort, Mtart, Bklas, Matnr, Ersda;
+  //  field ( readonly ) Waers; // 이건 에러남 (정적 제어)
+
+  field ( numbering : managed, readonly ) MatUuid;
+  field ( mandatory : create ) Werks, Lgort, Mtart, Bklas, Matnr;
+  //  field ( readonly : update ) Werks, Lgort, Mtart, Bklas, Matnr, Ersda;
 
   association _MaraText { create; with draft; }
 
   determination SetInitialDefault on modify { create; }
-  determination SetReadOnly on save { create; }
+  determination SetReadOnly on save { create; update; }
+  determination SetMeinsDefault on modify { create; }
 
-  // 2026-08-17 기준 확인된 Validation 실제 상태 (devlog 8/17 참고):
-  //   validation CheckInit     on save — ✅ 구현 완료 (필수값 누락 체크). 코드 본문은 미확보.
-  //   validation CheckMaterial on save — ❌ 메서드는 있으나 본문 비어있음 (Matnr 중복 체크)
-  //   validation CheckSLoc     on save — ❌ 메서드는 있으나 본문 비어있음 (플랜트-저장위치 정합성 체크)
-  //   validation CheckCreated  on save — ✅ 구현 완료 (등록일 한 달 이내 체크). 코드 본문은 미확보.
-  //   draft determine action Prepare 연동 여부는 미확인
-
-  draft table ztb07mara_d;
+  validation CheckInit on save { create; update; }
+  validation CheckMaterial on save { create; update; field Matnr; }
+  validation CheckSLoc on save { create; update; field Werks, Lgort; }
+  validation CheckCreated on save { create; update; field Ersda; }
+  validation CheckBklas on save { create; update; field Bklas; }
+  validation CheckSpart on save { create; update; field Spart; }
 
   draft action Edit;
   draft action Activate;
   draft action Resume;
   draft action Discard;
-  draft determine action Prepare;
+  draft determine action Prepare
+  {
+    validation CheckCreated;
+    validation CheckInit;
+    validation CheckMaterial;
+    validation CheckSLoc;
+    validation CheckBklas;
+  }
 
   mapping for ztb07mara corresponding
     {
+
+      //    Bklas = bklas;
       ChangedAt    = changed_at;
       ChangedBy    = changed_by;
       CreatedBy    = created_by;
       CreationAt   = creation_at;
+      //    Ersda = ersda;
+      //    Lgort = lgort;
       LocChangedAt = loc_changed_at;
       MatUuid      = mat_uuid;
+      //    Matfi = matfi;
+      //    Matnr = matnr;
+      //    Meins = meins;
+      //    Mtart = mtart;
+      //    Peinh = peinh;
+      //    Spart = spart;
+      //    Stprs = // 똑같은 값들은 corresponding으로 인해 작성 안해줘도 자동 매핑
+      //    Waers =
+      //    Werks =
+    }
+}
+
+define behavior for ZI_B07_MARATEXT alias MaraText
+persistent table ztb07mara_t
+draft table ztb07mara_td
+lock dependent by _Mara
+authorization dependent by _Mara
+etag dependent by _Mara
+{
+  update;
+  delete;
+
+  field ( readonly ) MatUuid;
+  field ( mandatory : create ) Maktx;
+  field ( mandatory : create, readonly : update ) Spras;
+
+  association _Mara { with draft; }
+
+  validation CheckMaraTextExist on save { create; }
+
+  mapping for ztb07mara_t corresponding
+    {
+
+      //    Maktx = maktx;
+      MatUuid = mat_uuid;
+      //    Spras = spras;
     }
 }

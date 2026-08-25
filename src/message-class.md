@@ -2,7 +2,7 @@
 
 Behavior Implementation(BIMP) 코드에서 `new_message( id = 'ZMSGE_B07' number = '0XX' ... )` 형태로 참조하는 메시지 번호 카탈로그. 개발일지에서 Validation/Determination 코드가 실제로 이 메시지 번호를 사용하는 경우, 번호 옆에 이 문서의 해당 행으로 링크를 건다(예: `[015](../reference/message-class.md#015)`).
 
-### 프로젝트 시작 전 실습 및 설계 과정 중 생성된 MC 내역
+### 프로젝트 시작 전 *(실습/설계 과정 중)* 생성된 MC 내역
 
 | 번호 | 메시지 (Short Text) | 변경자 | 변경일 |
 | --- | --- | --- | --- |

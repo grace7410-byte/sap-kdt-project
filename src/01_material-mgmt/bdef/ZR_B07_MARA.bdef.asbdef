@@ -1,7 +1,6 @@
 // ============================================================
 // 변경이력
-// 2026-08-13  최초 골격 (Draft/Etag/Mapping) — devlog: ../../../devlog/rap-dev/2026-08-13.md
-// 2026-08-14  Field Control + Determination(SetInitialDefault/SetReadOnly) 추가 — devlog: ../../../devlog/rap-dev/2026-08-14.md
+// 2026-08-14  최초 작성 (8/13 draft/etag/mapping 내용 + 8/14 field control/determination 통합) — devlog: .../2026-08-14.md
 // ============================================================
 // NOTE: managed implementation 클래스명은 프로젝트 네이밍 규칙(zbp_r_b07_xxx) 기반 추정치입니다.
 // Validation 로직(validate_matnr 등)은 8/14 기준 이름만 정해지고 코드는 미완성 상태라 TODO로 남겨둡니다.

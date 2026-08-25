@@ -1,0 +1,23 @@
+// ============================================================
+// 변경이력
+// 2026-08-17  최초 작성 (Projection Usage BDEF) — devlog: ../../../devlog/rap-dev/2026-08-17.md
+// ============================================================
+projection;
+strict ( 2 );
+
+define behavior for ZC_B07_SKA1
+{
+  use create;
+  use update;
+  use delete;
+
+  use association _Ska1Text { create; }
+}
+
+define behavior for ZC_B07_SKA1TEXT
+{
+  use update;
+  use delete;
+
+  use association _Ska1;
+}

@@ -1,0 +1,64 @@
+// ============================================================
+// 변경이력
+// 2026-08-17  최초 작성 (Root + Interface Child, Concurrency Control/Field Control/Mapping 완료) — devlog: ../../../devlog/rap-dev/2026-08-17.md
+// ============================================================
+// NOTE: total etag는 draft 지원 시에만 필요 (SKA1은 No Draft, V2)라 etag master ChangedAt만 사용.
+managed implementation in class zbp_r_b07_ska1 unique;
+strict ( 2 );
+
+define behavior for ZR_B07_SKA1
+persistent table ztb07ska1
+lock master
+authorization master ( instance )
+etag master ChangedAt
+{
+
+  field ( numbering : managed, readonly ) SakUuid;
+  field ( mandatory : create ) Saknr, Glact;
+  field ( readonly : update ) Saknr;
+  field ( readonly ) ChangedAt, ChangedBy, CreatedBy, CreationAt;
+
+  create;
+  update;
+  delete;
+  association _Ska1Text { create; }
+
+  mapping for ztb07ska1 corresponding
+    {
+
+      //    Bukrs = bukrs;
+      //    Glact = glact;
+      //    Mitkz = mitkz;
+      //    Saknr = saknr;
+      //    Waers = waers;
+      //    Xloev = xloev;
+      ChangedAt    = changed_at;
+      ChangedBy    = changed_by;
+      CreatedBy    = created_by;
+      CreationAt   = creation_at;
+      SakUuid      = sak_uuid;
+    }
+
+}
+
+define behavior for ZI_B07_SKA1TEXT
+persistent table ztb07ska1_t
+lock dependent by _Ska1
+authorization dependent by _Ska1
+etag dependent by _Ska1
+{
+  update;
+  delete;
+  field ( readonly ) SakUuid;
+  field ( mandatory : create, readonly : update ) Spras;
+  field ( mandatory ) Saktx;
+
+  association _Ska1;
+
+  mapping for ztb07ska1_t corresponding
+    {
+      SakUuid = sak_uuid;
+      Saktx   = txt20;
+      //    Spras = spras;
+    }
+}

@@ -1,6 +1,7 @@
 // ============================================================
 // 변경이력
 // 2026-08-17  최초 작성 (List Report/Object Page 어노테이션) — devlog: ../../../devlog/rap-dev/2026-08-17.md
+// 2026-08-21  BukrsText/MitkzText hidden 처리 추가 (텍스트는 CDS view에서 함께 노출되므로) — devlog: ../../../devlog/rap-dev/2026-08-21.md
 // ============================================================
 @Metadata.layer: #CUSTOMER
 @UI.headerInfo: {
@@ -40,10 +41,14 @@ annotate entity ZC_B07_SKA1 with
 
   @UI.identification: [ { qualifier: 'AcctInfo', position: 30, label: '회사코드'  } ]
   Bukrs;
+  @UI.hidden: true
+  BukrsText;
   @UI.identification: [ { qualifier: 'AcctInfo', position: 40, label: '통화'  } ]
   Waers;
   @UI.identification: [ { qualifier: 'AcctInfo', position: 50, label: '조정계정 유형' } ]
   Mitkz;
+  @UI.hidden: true
+  MitkzText;
 
   @UI.hidden: true
   Xloev;

@@ -21,7 +21,6 @@
 
 - **`devlog/rap-dev/`** — CDS/BDEF 등 RAP 오브젝트 개발일지 (문제→해결 중심)
 - **`devlog/module-practice/`** — MM/SD/FI 등 트랜잭션 기반 모듈 실습 로그
-- **`devlog/guides/`** — 날짜와 무관하게 재사용하는 매뉴얼/가이드 (예: 러닝허브 접속법)
 
 각 폴더의 `_template.md`를 복사해서 새 글을 작성합니다.
 

@@ -1,0 +1,57 @@
+// ============================================================
+// 변경이력
+// 2026-08-18  최초 작성 — devlog: ../../../devlog/rap-dev/2026-08-18.md
+// ============================================================
+// NOTE: draft table 이름(ztb07lfa1_d)과 SetVendorNumber의 트리거 시점(on save { create; })은
+//       MARA/T030의 동일 패턴을 따른 추정치입니다 (원문에 명시적 선언 라인은 없었음).
+managed implementation in class zbp_r_b07_lfa1 unique;
+strict ( 2 );
+
+define behavior for ZR_B07_LFA1
+persistent table ztb07lfa1
+lock master
+authorization master ( instance )
+etag master LocChangedAt
+total etag ChangedAt
+with draft
+{
+  field ( numbering : managed, readonly ) LifUuid;
+  field ( mandatory : create ) Fdgrv;
+  field ( readonly ) Lifnr, Waers;
+
+  create;
+  update;
+  delete;
+
+  determination SetInitialDefault on modify { create; }
+  determination SetVendorNumber on save { create; }
+  validation CheckInit on save { create; update; }
+
+  draft table ztb07lfa1_d;
+
+  draft action Edit;
+  draft action Activate;
+  draft action Resume;
+  draft action Discard;
+  draft determine action Prepare;
+
+  mapping for ztb07lfa1 corresponding
+    {
+//      Akont        = akont;
+//      Ekgrp        = ekgrp;
+//      Ekorg        = ekorg;
+//      Fdgrv        = fdgrv;
+//      Lifnr        = lifnr;
+//      Loevm        = loevm;
+//      Minbw        = minbw;
+//      Name1        = name1;
+//      Waers        = waers;
+      ChangedAt    = changed_at;
+      ChangedBy    = changed_by;
+      CreatedBy    = created_by;
+      CreationAt   = creation_at;
+      LifUuid      = lif_uuid;
+      LocChangedAt = loc_changed_at;
+
+    }
+}

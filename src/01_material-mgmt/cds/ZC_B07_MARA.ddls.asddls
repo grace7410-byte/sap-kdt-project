@@ -2,6 +2,7 @@
 // 변경이력
 // 2026-08-12  최초 작성 (필드 일부 미반영, 진행중) — devlog: ../../../devlog/rap-dev/2026-08-12.md
 // 2026-08-13  정렬(Sort)/검색조건/Value Help/텍스트 배치/저장위치 Association 반영 — devlog: ../../../devlog/rap-dev/2026-08-13.md
+// 2026-08-21  자재코드/저장위치(Additional Binding)/제품군 Value Help 반영 — devlog: ../../../devlog/rap-dev/2026-08-21.md
 // ============================================================
 @AbapCatalog.viewEnhancementCategory: [#NONE]
 @AccessControl.authorizationCheck: #NOT_REQUIRED
@@ -44,6 +45,8 @@ define root view entity ZC_B07_MARA
   @Search.fuzzinessThreshold: 0.8
   @UI.selectionField: [{  position: 20  }]
   @EndUserText.label: 'Material'
+  // 서치헬프
+  @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_B07_MATNR_F4', element: 'Matnr' } }]
   @ObjectModel.text.element: ['Maktx']
   @UI.textArrangement: #TEXT_FIRST
   Matnr,
@@ -52,9 +55,21 @@ define root view entity ZC_B07_MARA
   @UI.hidden: true
   MtartText,
 
+  /********* 제품군 ************/
+  // 서치헬프
+  @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_B07_SPART_F4', element: 'Spart' } }]
+  Spart,
+
   /********* 저장위치 ************/
   @ObjectModel.text.element: ['LgortText']
   @UI.textArrangement: #TEXT_FIRST
+  // 서치헬프 (Additional Binding: 플랜트로 필터링)
+  @Consumption.valueHelpDefinition: [{
+      entity: { name: 'ZI_B07_LGORT_F4', element: 'StorageLocation' },
+      additionalBinding: [
+        { localElement: 'Werks', element: 'Plant', usage: #FILTER }
+      ]
+  }]
   Lgort,
   _SlocText.StorageLocationName as LgortText,
 

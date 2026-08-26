@@ -1,6 +1,7 @@
 // ============================================================
 // 변경이력
 // 2026-08-20  최초 작성, Root BO View(ZR_B07_T030) 신설에 맞춤 — devlog: ../../../devlog/rap-dev/2026-08-20.md
+// 2026-08-25  전기키 valueHelpDefinition에 additionalBinding(usage: #RESULT) 추가해 F4 선택 시 Shkzg 자동 채움, Shkzg는 readOnly로 전환 — devlog: ../../../devlog/rap-dev/2026-08-25.md
 // ============================================================
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: '회계계정결정 Projection View'
@@ -79,20 +80,21 @@ define root view entity ZC_B07_T030
       Glatx,
 
       /*********  전기키  ************/
-      // 서치헬프
-      @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_B07_BSCHL_F4', element: 'Bschl' } }]
+      // 서치헬프 (additionalBinding: F4에서 행 선택 시 Shkzg 자동 채움)
+      @Consumption.valueHelpDefinition: [{
+        entity: { name: 'ZI_B07_BSCHL_F4', element: 'Bschl' },
+        additionalBinding: [
+          { element: 'ShkzgOut', localElement: 'Shkzg', usage: #RESULT }
+        ]
+      }]
       // 텍스트
       @ObjectModel.text.element: ['Bsctx'] //함께 띄우기
       @UI.textArrangement: #TEXT_FIRST
       Bschl,
       Bsctx,
 
-      /********* 차/대변 ************/
-      // 서치헬프
-      @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_B07_SHKZG_F4', element: 'Shkzg' } }]
-      // 텍스트
-      @ObjectModel.text.element: ['Shktx'] // 함께 띄우기
-      @UI.textArrangement: #TEXT_FIRST
+      /********* 차/대변 (전기키 선택 시 자동 채워지므로 readOnly) ************/
+      @UI.readOnly: true
       Shkzg,
       Shktx,
 

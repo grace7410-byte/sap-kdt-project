@@ -1,6 +1,7 @@
 // ============================================================
 // 변경이력
 // 2026-08-24  최초 작성 — devlog: ../../../devlog/rap-dev/2026-08-24.md
+// 2026-08-25  ShkzgOut 컬럼 추가 (additionalBinding 타겟 필드, 동일 소스 컬럼을 다른 별칭으로 재노출) — devlog: ../../../devlog/rap-dev/2026-08-25.md
 // ============================================================
 @AbapCatalog.viewEnhancementCategory: [#NONE]
 @AccessControl.authorizationCheck: #NOT_REQUIRED
@@ -31,7 +32,11 @@ define view entity ZI_B07_BSCHL_F4
       @Search.defaultSearchElement: true
       @UI.selectionField: [{position: 20}]
       @EndUserText.label: 'Posting Key Description'
-      DomainText as BschlText
+      DomainText as BschlText,
+      // additionalBinding의 타겟 필드
+      // 동일한 소스 컬럼을 다른 별칭으로 한 번 더 select 가능하다!
+      @EndUserText.label: 'Debit/Credit'
+      DomainText as ShkzgOut
 }
 where
       SAPDataDictionaryDomain = 'ZDB07BSCHL'

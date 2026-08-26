@@ -3,6 +3,7 @@
 // 2026-08-12  최초 작성 (필드 일부 미반영, 진행중) — devlog: ../../../devlog/rap-dev/2026-08-12.md
 // 2026-08-13  정렬(Sort)/검색조건/Value Help/텍스트 배치/저장위치 Association 반영 — devlog: ../../../devlog/rap-dev/2026-08-13.md
 // 2026-08-21  자재코드/저장위치(Additional Binding)/제품군 Value Help 반영 — devlog: ../../../devlog/rap-dev/2026-08-21.md
+// 2026-08-25  강사 피드백 반영: 자재코드(Matnr) valueHelpDefinition 제거(selectionField 요건과는 무관 판단) — devlog: ../../../devlog/rap-dev/2026-08-25.md
 // ============================================================
 @AbapCatalog.viewEnhancementCategory: [#NONE]
 @AccessControl.authorizationCheck: #NOT_REQUIRED
@@ -45,8 +46,8 @@ define root view entity ZC_B07_MARA
   @Search.fuzzinessThreshold: 0.8
   @UI.selectionField: [{  position: 20  }]
   @EndUserText.label: 'Material'
-  // 서치헬프
-  @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_B07_MATNR_F4', element: 'Matnr' } }]
+  // 서치헬프 => 는 피드백에 의해 주석 처리 (삭제)
+  // @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_B07_MATNR_F4', element: 'Matnr' } }]
   @ObjectModel.text.element: ['Maktx']
   @UI.textArrangement: #TEXT_FIRST
   Matnr,

@@ -22,6 +22,6 @@ FS 문서: `00. 공통(자재타입_SearchHelp)_FS_v10`
 | Search Help | `ZI_B07_BWART_F4` | I_DomainFixedValueText (ZDB07BWART) | 이동유형 Value Help (회계결정코드 모듈에서 사용) | [`ZI_B07_BWART_F4.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/00_common-searchhelp/cds/ZI_B07_BWART_F4.ddls.asddls) |
 | Search Help | `ZI_B07_BSCHL_F4` | I_DomainFixedValueText (ZDB07BSCHL) | 전기키 Value Help. 2026-08-25 `ShkzgOut` 컬럼 추가(같은 소스 컬럼을 별칭으로 재노출) — `ZC_B07_T030`의 additionalBinding 타겟 필드 | [`ZI_B07_BSCHL_F4.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/00_common-searchhelp/cds/ZI_B07_BSCHL_F4.ddls.asddls) |
 | Search Help | `ZI_B07_SHKZG_F4` | I_DomainFixedValueText (ZDB07SHKZG) | 차/대변 Value Help (2026-08-25부터 `ZC_B07_T030`에서는 Shkzg가 readOnly라 F4 자체는 사용 안 됨) | [`ZI_B07_SHKZG_F4.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/00_common-searchhelp/cds/ZI_B07_SHKZG_F4.ddls.asddls) |
-| Search Help | `ZI_B07_LFA1_F4` | ZTB07LFA1 | 공급업체 Value Help | - |
+| Search Help | `ZI_B07_LIFNR_F4` | ZR_B07_LFA1 | 공급업체 코드 Value Help (공급업체번호/공급업체명/분류/분류설명 노출, 2026-08-26 신규) | [`ZI_B07_LIFNR_F4.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/00_common-searchhelp/cds/ZI_B07_LIFNR_F4.ddls.asddls) |
 
 > 네이밍 규칙: `ZI_B##_<Name>_F4`

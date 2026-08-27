@@ -6,9 +6,9 @@ FS 문서: `03. 밴더관리_FS_v10` · RAP 방식: Managed / V4 OData / With Dr
 | --- | --- | --- | --- | --- |
 | Table | `ZTB07LFA1` | - | 공급업체 마스터 (UUID PK, 공급업체번호/분류/조정계정 등, Text Table 없음) | [`ZTB07LFA1.tabl.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/03_vendor/tables/ZTB07LFA1.tabl.asddls) |
 | Root BO | `ZR_B07_LFA1` | ZTB07LFA1 | RAP Root Entity, 공급업체분류/조정계정(SKA1) 텍스트 Association 포함 | [`ZR_B07_LFA1.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/03_vendor/cds/ZR_B07_LFA1.ddls.asddls) |
-| Projection | `ZC_B07_LFA1` | ZR_B07_LFA1 | OData V4 노출용 Root (정렬/검색조건/텍스트 반영) | [`ZC_B07_LFA1.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/03_vendor/cds/ZC_B07_LFA1.ddls.asddls) |
-| Behavior Definition | `ZR_B07_LFA1` / `ZC_B07_LFA1` | - | Managed, with draft. Field Control/Determination(초기값)/Validation(필수값+조정계정 체크)/자동채번 완료 | [`ZR_B07_LFA1.bdef.asbdef`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/03_vendor/bdef/ZR_B07_LFA1.bdef.asbdef), [`ZC_B07_LFA1.bdef.asbdef`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/03_vendor/bdef/ZC_B07_LFA1.bdef.asbdef) |
-| Behavior Implementation | `ZBP_R_B07_LFA1` | - | `SetInitialDefault`(통화 KRW), `CheckInit`(필수값), `SetVendorNumber`(자동채번, Prefix 'V'+6자리로 채번 오류 해결) 구현 완료 | [`zbp_r_b07_lfa1.clas.abap`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/03_vendor/bimp/zbp_r_b07_lfa1.clas.abap) |
+| Projection | `ZC_B07_LFA1` | ZR_B07_LFA1 | OData V4 노출용 Root (정렬/검색조건/텍스트 반영. 2026-08-26 공급업체분류/공급업체번호/조정계정 Value Help 연결) | [`ZC_B07_LFA1.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/03_vendor/cds/ZC_B07_LFA1.ddls.asddls) |
+| Behavior Definition | `ZR_B07_LFA1` / `ZC_B07_LFA1` | - | Managed, with draft. Field Control/Determination(초기값)/Validation(필수값+조정계정 체크)/자동채번 완료. `field(features:instance) Loevm`(2026-08-26 신규, 생성 시 거래종료 readonly) | [`ZR_B07_LFA1.bdef.asbdef`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/03_vendor/bdef/ZR_B07_LFA1.bdef.asbdef), [`ZC_B07_LFA1.bdef.asbdef`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/03_vendor/bdef/ZC_B07_LFA1.bdef.asbdef) |
+| Behavior Implementation | `ZBP_R_B07_LFA1` | - | `SetInitialDefault`(통화 KRW), `CheckInit`(필수값), `SetVendorNumber`(자동채번, Prefix 'V'+6자리로 채번 오류 해결), `get_instance_features`(거래종료 Loevm 생성 시 readonly, 2026-08-26 신규) 구현 완료 | [`zbp_r_b07_lfa1.clas.abap`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/03_vendor/bimp/zbp_r_b07_lfa1.clas.abap) |
 | Metadata Extension | `ZC_B07_LFA1` | - | List Report / Object Page Annotation | [`ZC_B07_LFA1.ddlx.asddlx`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/03_vendor/cds/ZC_B07_LFA1.ddlx.asddlx) |
 | Service Definition | `ZUI_B07_LFA1` | - | ZC_B07_LFA1 expose | - |
 | Service Binding | `ZUI_B07_LFA1_V4` | - | OData V4 – UI (Fiori Elements) | - |
@@ -28,4 +28,4 @@ FS 문서: `03. 밴더관리_FS_v10` · RAP 방식: Managed / V4 OData / With Dr
 | A5 | 인건비 | 05 |
 | A6 | 세금 (A/P) | 06 |
 
-관련 Search Help: [`ZI_B07_FDGRV_F4`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/00_common-searchhelp/cds/ZI_B07_FDGRV_F4.ddls.asddls), [`ZI_B07_LFA1_F4`](./00_common-searchhelp.md) · 조정계정(`akont`)은 [FI 계정관리](./02_fi-account.md) 참조
+관련 Search Help: [`ZI_B07_FDGRV_F4`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/00_common-searchhelp/cds/ZI_B07_FDGRV_F4.ddls.asddls), [`ZI_B07_LIFNR_F4`](./00_common-searchhelp.md)(공급업체 코드, 2026-08-26 신규) · 조정계정(`akont`)은 [FI 계정관리](./02_fi-account.md) 참조

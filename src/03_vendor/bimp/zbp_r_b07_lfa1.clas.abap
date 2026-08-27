@@ -3,9 +3,13 @@
 // 2026-08-18  최초 작성 (SetInitialDefault, CheckInit, SetVendorNumber) — devlog: ../../../devlog/rap-dev/2026-08-18.md
 // 2026-08-21  SetVendorNumber 채번 오류 수정: Prefix('V'+6자리)를 로직에서 직접 구성,
 //             Number Range 오브젝트명 ZNR_B07LIFNR → ZNRB07_LIF로 변경, OTHERS일 때 CONTINUE 대신 기본값('01') 사용 — devlog: ../../../devlog/rap-dev/2026-08-21.md
+// 2026-08-26  get_instance_features 추가 — 신규 생성 시 거래종료(Loevm) readonly, 수정 시에만 편집 가능 — devlog: ../../../devlog/rap-dev/2026-08-26.md
 // ============================================================
 CLASS lhc_ZR_B07_LFA1 DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.
+
+    METHODS get_instance_features FOR INSTANCE FEATURES
+      IMPORTING keys REQUEST requested_features FOR zr_b07_lfa1 RESULT result.
 
     METHODS SetInitialDefault FOR DETERMINE ON MODIFY
       IMPORTING keys FOR zr_b07_lfa1~SetInitialDefault.
@@ -19,6 +23,28 @@ CLASS lhc_ZR_B07_LFA1 DEFINITION INHERITING FROM cl_abap_behavior_handler.
 ENDCLASS.
 
 CLASS lhc_ZR_B07_LFA1 IMPLEMENTATION.
+
+  METHOD get_instance_features.
+    DATA lt_result TYPE TABLE FOR FEATURES RESULT zr_b07_lfa1.
+    READ ENTITIES OF zr_b07_lfa1 IN LOCAL MODE
+      ENTITY zr_b07_lfa1
+      FIELDS ( LifUuid )
+      WITH CORRESPONDING #( keys )
+      RESULT DATA(lt_lfa1).
+    SELECT lif_uuid FROM ztb07lfa1
+        INTO TABLE @DATA(lt_dummy)." 미리 DB 테이블 데이터를 받아놓고
+    LOOP AT lt_lfa1 INTO DATA(ls_lfa1). " Uuid(=PK) 기준으로 겹치는 데이터가 있다면 기존 벤더 수정중!
+    READ TABLE lt_dummy INTO DATA(lv_dummy) WITH KEY lif_uuid = ls_lfa1-LifUuid.
+      " 조회 성공 = 기존 벤더(Update) = 거래종료 편집 가능
+      " 조회 실패 = 신규 생성 중(Create) = 거래종료 readonly
+      DATA(lv_readonly) = COND #( WHEN sy-subrc = 0
+                                   THEN if_abap_behv=>fc-f-unrestricted
+                                   ELSE if_abap_behv=>fc-f-read_only ).
+      APPEND VALUE #( %tky         = ls_lfa1-%tky
+                       %field-Loevm = lv_readonly ) TO lt_result.
+    ENDLOOP.
+    result = lt_result.
+  ENDMETHOD.
 
   METHOD SetInitialDefault.
     MODIFY ENTITIES OF zr_b07_lfa1 IN LOCAL MODE

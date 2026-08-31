@@ -1,0 +1,98 @@
+// ============================================================
+// 변경이력
+// 2026-08-30  최초 작성 (Managed, with draft) — devlog: ../../../devlog/rap-dev/2026-08-30.md
+// ============================================================
+// NOTE: 8/30 devlog에 나온 여러 스니펫(기본 골격 → Draft 설정 → Mapping → CRUD 요구사항)을 하나로
+//       합친 상태입니다. "예외 처리 및 추가 로직"은 다음 작업일에 이어서 진행 예정이라 아직 미완성입니다.
+managed implementation in class zbp_r_b07_eina unique;
+strict ( 2 );
+with draft;
+
+define behavior for zr_b07_eina //alias <alias_name>
+persistent table ztb07eina
+draft table ztb07eina_d
+lock master
+total etag ChangedAt
+authorization master ( instance )
+etag master LocChangedAt
+{
+  field ( numbering : managed, readonly ) InfUuid;
+  field ( readonly : update ) Infnr;
+
+  create;
+  update;
+  delete;
+
+  determination SetDefaults on modify { create; }
+  determination SetInfnrNumber on save { create; }
+
+  validation CheckRequired on save { create; update; }
+  validation CheckDuplicate on save { create; update; field LifUuid, MatUuid; }
+  validation CheckEsokz on save { create; update; field Esokz; }
+
+  draft action Edit;
+  draft action Activate;
+  draft action Resume;
+  draft action Discard;
+  draft determine action Prepare { }
+
+  association _Eine { create; with draft; }
+
+  mapping for ztb07eina corresponding
+    {
+      ChangedAt    = changed_at;
+      ChangedBy    = changed_by;
+      CreatedBy    = created_by;
+      CreationAt   = creation_at;
+      //    Ekgrp = ekgrp;
+      //    Ekorg =
+      //    esokz =
+      InfUuid      = inf_uuid;
+      //    Infnr = infnr;
+      Irtxt        = txz01;
+      LifUuid      = lif_uuid;
+      LocChangedAt = loc_changed_at;
+      //    Loekz
+      //    Meins =
+    }
+}
+
+define behavior for zi_b07_eine alias Eine
+persistent table ztb07eine
+draft table ztb07eine_d
+lock dependent by _Eina
+authorization dependent by _Eina
+etag dependent by _Eina
+{
+  update;
+  delete;
+
+  field ( readonly ) InfUuid;
+  field ( mandatory : create, readonly : update ) Werks;
+  field ( readonly ) Waers;
+
+  determination SetItemDefaults on modify { create; }
+
+  validation CheckExist on save { create; update; field Werks; }
+  validation CheckPositive on save { create; update; field Peinh; }
+
+  association _Eina { with draft; }
+
+  mapping for ztb07eine corresponding
+    {
+      //    Aplfz=
+      //    Bprme =
+      //    Bstma =
+      ChangedAt  = changed_at;
+      ChangedBy  = changed_by;
+      CreatedBy  = created_by;
+      CreationAt = creation_at;
+      InfUuid    = inf_uuid;
+      //    Loekz
+      //    Netpr= 7
+      //    Peinh = = 7
+      //      Prdat = 7
+      //    Waers
+      //    werks
+    }
+}

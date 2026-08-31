@@ -1,6 +1,7 @@
 // ============================================================
 // 변경이력
 // 2026-08-27  최초 작성 — devlog: ../../../devlog/rap-dev/2026-08-27.md
+// 2026-08-30  txz01(구매정보내역) 필드를 Irtxt로 노출 — devlog: ../../../devlog/rap-dev/2026-08-30.md
 // ============================================================
 @AbapCatalog.viewEnhancementCategory: [#NONE]
 @AccessControl.authorizationCheck: #NOT_REQUIRED
@@ -18,6 +19,7 @@ define view entity zi_b07_eina
       ekgrp          as Ekgrp,
       meins          as Meins,
       loekz          as Loekz,
+      txz01          as Irtxt,
       created_by     as CreatedBy,
       creation_at    as CreationAt,
       changed_by     as ChangedBy,

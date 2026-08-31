@@ -2,11 +2,9 @@
 // 변경이력
 // 2026-08-27  최초 작성 (zi_b07_eina 기반 + _Eine composition) — devlog: ../../../devlog/rap-dev/2026-08-27.md
 // 2026-08-27  공급업체(_Lfa1)/자재(_Mara) Association 및 텍스트 필드(Liftx/Maktx) 추가 — devlog: ../../../devlog/rap-dev/2026-08-27.md
+// 2026-08-30  레코드유형명(_EsokzText, I_DomainFixedValueText 기반) Association 추가로 Esotx 완성,
+//             구매정보내역(Irtxt) 필드 추가 — devlog: ../../../devlog/rap-dev/2026-08-30.md
 // ============================================================
-// NOTE: 8/27 devlog에 나온 여러 스니펫(기본 필드 → _Lfa1/_Mara 추가)을 하나로 합친 상태입니다.
-//       레코드유형명(Esotx) association은 devlog에서 "I_Domain*으로 끌어올 예정"이라고만 언급되고
-//       실제 코드는 아직 제시되지 않아 TODO로만 남겨둡니다. ZC_B07_EINA(Projection)는 이미 Esotx를
-//       참조하고 있어, Esotx가 채워지기 전까지는 Projection 쪽 활성화 시 오류가 날 수 있습니다.
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: '구매정보레코드 헤더 Root BO View'
 @Metadata.ignorePropagatedAnnotations: true
@@ -14,16 +12,22 @@ define root view entity zr_b07_eina
   as select from zi_b07_eina
   composition[0..*]  of zi_b07_eine as _Eine
 
-  association[0..1] to ZR_B07_LFA1 as _Lfa1
-      on  $projection.LifUuid = _Lfa1.LifUuid
+association[0..1] to ZR_B07_LFA1 as _Lfa1
+    on  $projection.LifUuid = _Lfa1.LifUuid
 
-  association[0..1] to zr_b07_mara as _Mara
-      on  $projection.MatUuid = _Mara.MatUuid
+association[0..1] to zr_b07_mara as _Mara
+    on  $projection.MatUuid = _Mara.MatUuid
+
+association[0..*] to I_DomainFixedValueText as _EsokzText
+    on _EsokzText.SAPDataDictionaryDomain = 'ESOKZ'
+    and $projection.Esokz = _EsokzText.DomainValue
+
 {
   key InfUuid,
       Infnr,
+      /* 레코드 유형명 */
       Esokz,
-      // TODO: Esotx(레코드유형명) association 미완성 — I_Domain* 기반 예정, 코드 미확정 (2026-08-27 시점)
+      _EsokzText[1: Language = $session.system_language].DomainText as Esotx,
 
       /* 공급업체 코드 및 공급업체명 */
       LifUuid,
@@ -39,6 +43,8 @@ define root view entity zr_b07_eina
       Ekgrp,
       Meins,
       Loekz,
+      Irtxt,
+
       @Semantics.user.createdBy: true
       CreatedBy,
       @Semantics.systemDateTime.createdAt: true

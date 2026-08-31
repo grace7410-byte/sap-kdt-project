@@ -1,0 +1,260 @@
+*=============================================================
+* 변경이력
+* 2026-08-30  최초 작성 — devlog: ../../../devlog/rap-dev/2026-08-30.md
+*             헤더(lhc_zr_b07_eina): SetDefaults/SetInfnrNumber/CheckRequired/CheckDuplicate/CheckEsokz
+*             아이템(lhc_eine): SetItemDefaults/CheckExist/CheckPositive
+* NOTE: "예외 처리 및 추가 로직"은 다음 작업일에 이어서 진행 예정 — 8/30 시점 WIP 상태입니다.
+*=============================================================
+CLASS lhc_zr_b07_eina DEFINITION INHERITING FROM cl_abap_behavior_handler.
+  PRIVATE SECTION.
+
+    METHODS get_instance_authorizations FOR INSTANCE AUTHORIZATION
+      IMPORTING keys REQUEST requested_authorizations FOR zr_b07_eina RESULT result.
+    METHODS setdefaults FOR DETERMINE ON MODIFY
+      IMPORTING keys FOR zr_b07_eina~setdefaults.
+    METHODS setinfnrnumber FOR DETERMINE ON SAVE
+      IMPORTING keys FOR zr_b07_eina~setinfnrnumber.
+    METHODS checkduplicate FOR VALIDATE ON SAVE
+      IMPORTING keys FOR zr_b07_eina~checkduplicate.
+    METHODS checkesokz FOR VALIDATE ON SAVE
+      IMPORTING keys FOR zr_b07_eina~checkesokz.
+    METHODS checkrequired FOR VALIDATE ON SAVE
+      IMPORTING keys FOR zr_b07_eina~checkrequired.
+
+ENDCLASS.
+
+CLASS lhc_zr_b07_eina IMPLEMENTATION.
+
+  METHOD get_instance_authorizations.
+  ENDMETHOD.
+
+  METHOD SetDefaults.
+    DATA: lt_update TYPE TABLE FOR UPDATE zr_b07_eina.
+    READ ENTITIES OF zr_b07_eina IN LOCAL MODE
+      ENTITY zr_b07_eina
+        FIELDS ( Esokz LifUuid Ekorg Ekgrp )
+        WITH CORRESPONDING #( keys )
+      RESULT DATA(lt_eina).
+    SELECT lif_uuid, ekorg, ekgrp FROM ztb07lfa1
+      INTO TABLE @DATA(lt_db_lfa1).
+    LOOP AT lt_eina INTO DATA(ls_eina)
+         WHERE Esokz IS INITIAL OR Ekorg IS INITIAL OR Ekgrp IS INITIAL.
+      READ TABLE lt_db_lfa1 INTO DATA(ls_db_lfa1) WITH KEY lif_uuid = ls_eina-LifUuid.
+      APPEND VALUE #( %tky  = ls_eina-%tky
+                       Esokz = COND #( WHEN ls_eina-Esokz IS INITIAL THEN '0' ELSE ls_eina-Esokz )
+                       Ekorg = COND #( WHEN ls_eina-Ekorg IS INITIAL THEN ls_db_lfa1-ekorg ELSE ls_eina-Ekorg )
+                       Ekgrp = COND #( WHEN ls_eina-Ekgrp IS INITIAL THEN ls_db_lfa1-ekgrp ELSE ls_eina-Ekgrp )
+                     ) TO lt_update.
+    ENDLOOP.
+    IF lt_update IS NOT INITIAL.
+      MODIFY ENTITIES OF zr_b07_eina IN LOCAL MODE
+        ENTITY zr_b07_eina
+          UPDATE FIELDS ( Esokz Ekorg Ekgrp )
+          WITH lt_update.
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD SetInfnrNumber.
+    DATA: lv_number TYPE inri-nr,
+          lt_update TYPE TABLE FOR UPDATE zr_b07_eina.
+    READ ENTITIES OF zr_b07_eina IN LOCAL MODE
+      ENTITY zr_b07_eina
+        FIELDS ( Infnr )
+        WITH CORRESPONDING #( keys )
+      RESULT DATA(lt_eina).
+    LOOP AT lt_eina INTO DATA(ls_eina) WHERE Infnr IS INITIAL.
+      CALL FUNCTION 'NUMBER_GET_NEXT' " 채번
+        EXPORTING
+          nr_range_nr = '01'
+          object      = 'ZNRB07_INF'
+        IMPORTING
+          number      = lv_number
+        EXCEPTIONS
+          OTHERS      = 1.
+      IF sy-subrc = 0. " 연도(4자리) + 뒤 6자리로 구성
+        DATA(lv_seq)   = substring( val = lv_number
+                            off = strlen( lv_number ) - 6 ).
+        DATA(lv_infnr) = |{ sy-datum(4) }{ lv_seq }|.
+        APPEND VALUE #( %tky  = ls_eina-%tky
+                         Infnr = lv_infnr ) TO lt_update.
+      ELSE.
+        APPEND VALUE #( %tky = ls_eina-%tky
+                     %msg = new_message( id = 'ZMSGE_B07'
+                                          number = '009'
+                                          v1 = 'Purchase Info Record Number Range'
+                                          severity = if_abap_behv_message=>severity-error ) )
+        TO reported-zr_b07_eina.
+      ENDIF.
+    ENDLOOP.
+    IF lt_update IS NOT INITIAL.
+      MODIFY ENTITIES OF zr_b07_eina IN LOCAL MODE
+        ENTITY zr_b07_eina
+          UPDATE FIELDS ( Infnr )
+          WITH lt_update.
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD CheckRequired.
+    READ ENTITIES OF zr_b07_eina IN LOCAL MODE
+      ENTITY zr_b07_eina
+        FIELDS ( LifUuid MatUuid Meins )
+        WITH CORRESPONDING #( keys )
+      RESULT DATA(lt_eina).
+    LOOP AT lt_eina INTO DATA(ls_eina).
+      IF ls_eina-LifUuid IS INITIAL.
+        APPEND VALUE #( %tky = ls_eina-%tky ) TO failed-zr_b07_eina.
+        APPEND VALUE #( %tky = ls_eina-%tky
+                        %element-LifUuid = if_abap_behv=>mk-on
+                        %msg = new_message( id = 'ZMSGE_B07'
+                                            number = '015'
+                                            v1 = 'Vendor'
+                                            severity = if_abap_behv_message=>severity-error ) )
+            TO reported-zr_b07_eina.
+      ENDIF.
+      IF ls_eina-MatUuid IS INITIAL.
+        APPEND VALUE #( %tky = ls_eina-%tky ) TO failed-zr_b07_eina.
+        APPEND VALUE #( %tky = ls_eina-%tky
+                        %element-MatUuid = if_abap_behv=>mk-on
+                        %msg = new_message( id = 'ZMSGE_B07'
+                                            number = '015'
+                                            v1 = 'Material'
+                                            severity = if_abap_behv_message=>severity-error ) )
+            TO reported-zr_b07_eina.
+      ENDIF.
+      IF ls_eina-Meins IS INITIAL.
+        APPEND VALUE #( %tky = ls_eina-%tky ) TO failed-zr_b07_eina.
+        APPEND VALUE #( %tky = ls_eina-%tky
+                        %element-Meins = if_abap_behv=>mk-on
+                        %msg = new_message( id = 'ZMSGE_B07'
+                                            number = '015'
+                                            v1 = 'Base Unit'
+                                            severity = if_abap_behv_message=>severity-error ) )
+            TO reported-zr_b07_eina.
+      ENDIF.
+    ENDLOOP.
+  ENDMETHOD.
+
+  METHOD CheckDuplicate.
+    READ ENTITIES OF zr_b07_eina IN LOCAL MODE
+      ENTITY zr_b07_eina
+        FIELDS ( LifUuid MatUuid )
+        WITH CORRESPONDING #( keys )
+      RESULT DATA(lt_eina).
+    SELECT inf_uuid, lif_uuid, mat_uuid FROM ztb07eina
+      INTO TABLE @DATA(lt_db_data).
+    LOOP AT lt_eina INTO DATA(ls_eina)
+         WHERE LifUuid IS NOT INITIAL AND MatUuid IS NOT INITIAL.
+      DATA(lv_is_dup) = abap_false.
+      LOOP AT lt_db_data INTO DATA(ls_db_data)
+           WHERE lif_uuid = ls_eina-LifUuid
+             AND mat_uuid = ls_eina-MatUuid
+             AND inf_uuid <> ls_eina-InfUuid.
+        lv_is_dup = abap_true.
+        EXIT.
+      ENDLOOP.
+      IF lv_is_dup = abap_true.
+        APPEND VALUE #( %tky = ls_eina-%tky ) TO failed-zr_b07_eina.
+        APPEND VALUE #( %tky = ls_eina-%tky
+                         %msg = new_message( id = 'ZMSGE_B07'
+                                              number   = '017'
+                                              v1       = 'Purchase Info Record'
+                                              v2       = 'Vendor/Material'
+                                              severity = if_abap_behv_message=>severity-error ) )
+          TO reported-zr_b07_eina.
+      ENDIF.
+    ENDLOOP.
+  ENDMETHOD.
+
+  METHOD CheckEsokz.
+    READ ENTITIES OF zr_b07_eina IN LOCAL MODE
+      ENTITY zr_b07_eina
+        FIELDS ( Esokz )
+        WITH CORRESPONDING #( keys )
+      RESULT DATA(lt_eina).
+    LOOP AT lt_eina INTO DATA(ls_eina) WHERE Esokz IS NOT INITIAL AND Esokz <> '0'.
+      APPEND VALUE #( %tky = ls_eina-%tky ) TO failed-zr_b07_eina.
+      APPEND VALUE #( %tky = ls_eina-%tky
+                       %element-Esokz = if_abap_behv=>mk-on
+                       %msg = new_message( id = 'ZMSGE_B07'
+                                            number   = '021'
+                                            v1       = 'Purchase Info Category'
+                                            v2       = ls_eina-Esokz
+                                            severity = if_abap_behv_message=>severity-error ) )
+        TO reported-zr_b07_eina.
+    ENDLOOP.
+  ENDMETHOD.
+
+ENDCLASS.
+
+CLASS lhc_eine DEFINITION INHERITING FROM cl_abap_behavior_handler.
+  PRIVATE SECTION.
+
+    METHODS setitemdefaults FOR DETERMINE ON MODIFY
+      IMPORTING keys FOR zi_b07_eine~setitemdefaults.
+    METHODS checkexist FOR VALIDATE ON SAVE
+      IMPORTING keys FOR zi_b07_eine~checkexist.
+    METHODS checkpositive FOR VALIDATE ON SAVE
+      IMPORTING keys FOR zi_b07_eine~checkpositive.
+
+ENDCLASS.
+
+CLASS lhc_eine IMPLEMENTATION.
+
+  METHOD SetItemDefaults.
+    MODIFY ENTITIES OF zr_b07_eina IN LOCAL MODE
+      ENTITY Eine
+        UPDATE FIELDS ( Waers Prdat )
+        WITH VALUE #( FOR key IN keys
+                        ( %tky  = key-%tky
+                          Waers = 'KRW'
+                          Prdat = '99991231' )
+                    ).
+  ENDMETHOD.
+
+  METHOD CheckExist.
+    READ ENTITIES OF zr_b07_eina IN LOCAL MODE
+      ENTITY zr_b07_eina
+      BY \_Eine
+      FIELDS ( Werks )
+      WITH CORRESPONDING #( keys )
+      RESULT DATA(lt_eine)
+      FAILED DATA(lt_failed_read).
+    SELECT plant FROM zi_b07_werks_f4
+      INTO TABLE @DATA(lt_db_werks).
+    LOOP AT lt_eine INTO DATA(ls_eine) WHERE Werks IS NOT INITIAL.
+      READ TABLE lt_db_werks INTO DATA(lv_db_werks) WITH KEY plant = ls_eine-Werks.
+      IF sy-subrc <> 0.
+        APPEND VALUE #( %tky = ls_eine-%tky ) TO failed-eine.
+        APPEND VALUE #( %tky = ls_eine-%tky
+                         %element-Werks = if_abap_behv=>mk-on
+                         %msg = new_message( id = 'ZMSGE_B07'
+                                              number   = '020'
+                                              v1       = 'Plant'
+                                              v2       = ls_eine-Werks
+                                              severity = if_abap_behv_message=>severity-error ) )
+          TO reported-eine.
+      ENDIF.
+    ENDLOOP.
+  ENDMETHOD.
+
+  METHOD CheckPositive.
+    READ ENTITIES OF zr_b07_eina IN LOCAL MODE
+      ENTITY zr_b07_eina
+      BY \_Eine
+      FIELDS ( Peinh )
+      WITH CORRESPONDING #( keys )
+      RESULT DATA(lt_eine)
+      FAILED DATA(lt_failed_read).
+    LOOP AT lt_eine INTO DATA(ls_eine) WHERE Peinh <= 0.
+      APPEND VALUE #( %tky = ls_eine-%tky ) TO failed-eine.
+      APPEND VALUE #( %tky = ls_eine-%tky
+                       %element-Peinh = if_abap_behv=>mk-on
+                       %msg = new_message( id = 'ZMSGE_B07'
+                                            number   = '022'
+                                            v1       = 'Price Unit'
+                                            severity = if_abap_behv_message=>severity-error ) )
+        TO reported-eine.
+    ENDLOOP.
+  ENDMETHOD.
+
+ENDCLASS.

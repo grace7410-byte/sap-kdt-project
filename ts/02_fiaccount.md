@@ -107,6 +107,8 @@ ENDMETHOD.
 
 🧪 테스트: 중복 계정번호 저장 시도 시 정상적으로 막히는 것 확인.
 
+![CheckDuplicate 에러 화면](../images/ts/02_fiaccount/checkduplicate_error.png)
+
 ### 3.4.2. 회사코드/통화/조정계정유형 존재 검증
 
 - **적용 Method:** [`CheckExist (신규)`](../reference/02_fi-account.md) · [코드 보기](../src/02_fi-account/bimp/zbp_r_b07_ska1.clas.abap) · BDEF: [코드 보기](../src/02_fi-account/bdef/ZR_B07_SKA1.bdef.asbdef)
@@ -177,4 +179,6 @@ ENDMETHOD.
 ```
 > 메시지 [`019`](../src/message-class.md#019)
 
-🧪 테스트: 회사코드/통화/조정계정유형 각각 이상한 값을 넣었을 때 해당 필드만 개별로 에러가 뜨고, 값이 비어있으면(입력 안 한 경우) 검증을 건너뛰는 것 확인. 2개 이상 동시에 틀려도 각각 잘 잡아냄. 3개 필드를 동시에 틀리게 입력한 화면에서도 각 필드별 에러 메시지가 개별로 표시되는 것을 확인.
+🧪 테스트: 회사코드/통화/조정계정유형 각각 이상한 값을 넣었을 때 해당 필드만 개별로 에러가 뜨고, 값이 비어있으면(입력 안 한 경우) 검증을 건너뛰는 것 확인. 통화+조정계정유형 2개 필드를 동시에 틀리게 입력한 경우에도 각 필드별 에러 메시지가 개별로 표시되는 것을 확인.
+
+![CheckExist 에러 화면 (통화+조정계정유형 동시 오류)](../images/ts/02_fiaccount/checkexist_error.png)

@@ -240,6 +240,8 @@ ENDIF.
 ```
 > 메시지 [`022`](../src/message-class.md#022)
 
+![CheckBklas 에러 화면](../images/ts/01_materialmgmt/checkbklas_error.png)
+
 ### 2.4.2. 가격/가격단위 양수 체크
 
 - **적용 Method:** [`CheckPositive (신규)`](../reference/01_material-mgmt.md) · [코드 보기](../src/01_material-mgmt/bimp/zbp_r_b07_mara.clas.abap) · BDEF: [코드 보기](../src/01_material-mgmt/bdef/ZR_B07_MARA.bdef.asbdef)
@@ -287,3 +289,5 @@ ENDMETHOD.
 표준가격단위(Peinh)는 정수형(Integer) 타입으로 정의되어 있어, 소수점이 포함된 값(예: 0.99)을 입력할 경우 필드 자체 검증 단계에서 "Enter a number without decimals."라는 시스템 오류가 발생하며 입력이 차단된다. 따라서 소수 입력에 대한 별도 예외 처리는 필요하지 않았다.
 
 🧪 테스트: 표준가격이 0 이하인 경우 "Standard Price must be greater than 0.", 표준가격단위가 0 이하인 경우 "Price Unit must be greater than 0." 메시지가 각각 반환되는 것을 확인.
+
+![CheckPositive 에러 화면](../images/ts/01_materialmgmt/checkpositive_error.png)

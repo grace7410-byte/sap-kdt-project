@@ -240,7 +240,7 @@ ENDIF.
 ```
 > 메시지 [`022`](../src/message-class.md#022)
 
-![CheckBklas 에러 화면](../images/ts/01_materialmgmt/checkbklas_error.png)
+![CheckBklas 에러 화면](../images/ts/01_materialmgmt/checkbklas_error.jpg)
 
 ### 2.4.2. 가격/가격단위 양수 체크
 

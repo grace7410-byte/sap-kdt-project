@@ -206,3 +206,84 @@ ENDCLASS.
 > 메시지 [`015`](../src/message-class.md#015): "Field &1 is required and cannot be empty."
 
 > 이 체크 로직은 최초에는 `SetLanguageDefault`(Determination on modify)로 Spras를 자동 채우는 방식으로 시도했으나 필수값 제약과 충돌해 실패했고, 이후 목표를 "MaraText 자식 레코드 존재 검증"으로 바꿔 위 Validation으로 정리되었다 — 자세한 경위는 devlog 2026-08-24(작성 예정) 참고.
+
+## 4) 2차 TS 수정·보완 내역 (중간평가 2차)
+
+강사님으로부터 4건의 피드백을 받았다: ① 자재타입-평가클래스 불일치 저장 허용, ② 표준가격 0 저장 허용, ③ 자재 생성 시 자재코드 서치헬프 필요성 의문, ④ 자재명 미입력 저장(의도한 것이면 무관). 이 중 ①~③을 반영하고, ④는 기존 설계 의도(자재명은 위 2.3.4 `CheckMaraTextExist` Validation으로 별도 관리)와 무관한 사안으로 판단해 보류하였다.
+
+### 2.4.1. 자재타입-평가클래스 정합성 검증 강화
+
+- **적용 Method:** [`CheckBklas (확장)`](../reference/01_material-mgmt.md) · [코드 보기](../src/01_material-mgmt/bimp/zbp_r_b07_mara.clas.abap) · BDEF: [코드 보기](../src/01_material-mgmt/bdef/ZR_B07_MARA.bdef.asbdef)
+- **사유:** 기존 `CheckBklas`는 평가클래스 값 자체(3000/3300/7900/7920)만 체크하고 자재타입과의 조합은 미검증 상태였음. FS 명세 기준 매핑(FERT→7920, HALB→7900, HAWA/ROH→3000, HIBE/VERP→3300)을 재정리하고, `field Bklas, Mtart`로 검증 범위를 확장해 조합 검증 로직을 추가.
+
+```abap
+validation CheckBklas on save { create; update; field Bklas, Mtart; }
+```
+
+```abap
+" 2026-08-25 신규: 강사 피드백 반영 — 자재타입과 평가클래스 조합이 FS 매핑에 맞는지 체크
+IF ( ls_mara-Bklas = '3000' AND ls_mara-Mtart <> 'ROH' AND ls_mara-Mtart <> 'HAWA' )
+  OR ( ls_mara-Bklas = '3300' AND ls_mara-Mtart <> 'HIBE' AND ls_mara-Mtart <> 'VERP' )
+  OR ( ls_mara-Bklas = '7900' AND ls_mara-Mtart <> 'HALB' )
+  OR ( ls_mara-Bklas = '7920' AND ls_mara-Mtart <> 'FERT' ).
+
+  APPEND VALUE #( %tky = ls_mara-%tky ) TO failed-zr_b07_mara.
+  APPEND VALUE #( %tky = ls_mara-%tky
+                  %element-Bklas = if_abap_behv=>mk-on
+                  %msg = new_message( id = 'ZMSGE_B07'
+                                      number = '022'
+                                      v1 = ls_mara-Mtart
+                                      v2 = ls_mara-Bklas
+                                      severity = if_abap_behv_message=>severity-error ) )
+      TO reported-zr_b07_mara.
+ENDIF.
+```
+> 메시지 [`022`](../src/message-class.md#022)
+
+### 2.4.2. 가격/가격단위 양수 체크
+
+- **적용 Method:** [`CheckPositive (신규)`](../reference/01_material-mgmt.md) · [코드 보기](../src/01_material-mgmt/bimp/zbp_r_b07_mara.clas.abap) · BDEF: [코드 보기](../src/01_material-mgmt/bdef/ZR_B07_MARA.bdef.asbdef)
+- **사유:** 강사님은 표준가격(Stprs)만 언급했으나, 가격단위(Peinh)도 0이면 의미가 없다고 판단해 자체적으로 검증 범위를 확장. Stprs>0, Peinh>0을 동시에 검증하며, Prepare 액션에도 등록.
+
+```abap
+validation CheckPositive on save { create; update; field Stprs, Peinh; }
+```
+
+```abap
+METHOD CheckPositive.
+  READ ENTITIES OF zr_b07_mara IN LOCAL MODE
+    ENTITY zr_b07_mara
+    FIELDS ( Stprs Peinh )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_mara).
+
+  LOOP AT lt_mara INTO DATA(ls_mara).
+    IF ls_mara-Stprs <= 0. "표준 가격은 0보다 커야 한다.
+      APPEND VALUE #( %tky = ls_mara-%tky ) TO failed-zr_b07_mara.
+      APPEND VALUE #( %tky = ls_mara-%tky
+                      %element-Stprs = if_abap_behv=>mk-on
+                      %msg = new_message( id = 'ZMSGE_B07'
+                                          number = '023'
+                                          v1 = 'Standard Price'
+                                          severity = if_abap_behv_message=>severity-error ) )
+          TO reported-zr_b07_mara.
+    ENDIF.
+
+    IF ls_mara-Peinh <= 0. " 가격 단위 역시 1, 2, ... 등 양수가 되어야 한다. (다행히 Peinh가 정수 타입)
+      APPEND VALUE #( %tky = ls_mara-%tky ) TO failed-zr_b07_mara.
+      APPEND VALUE #( %tky = ls_mara-%tky
+                      %element-Peinh = if_abap_behv=>mk-on
+                      %msg = new_message( id = 'ZMSGE_B07'
+                                          number = '023'
+                                          v1 = 'Price Unit'
+                                          severity = if_abap_behv_message=>severity-error ) )
+          TO reported-zr_b07_mara.
+    ENDIF.
+  ENDLOOP.
+ENDMETHOD.
+```
+> 메시지 [`023`](../src/message-class.md#023)
+
+표준가격단위(Peinh)는 정수형(Integer) 타입으로 정의되어 있어, 소수점이 포함된 값(예: 0.99)을 입력할 경우 필드 자체 검증 단계에서 "Enter a number without decimals."라는 시스템 오류가 발생하며 입력이 차단된다. 따라서 소수 입력에 대한 별도 예외 처리는 필요하지 않았다.
+
+🧪 테스트: 표준가격이 0 이하인 경우 "Standard Price must be greater than 0.", 표준가격단위가 0 이하인 경우 "Price Unit must be greater than 0." 메시지가 각각 반환되는 것을 확인.

@@ -214,13 +214,13 @@ cf. 회계결정코드(Ktosl)는 이미 mandatory 설정이 있어서 필수값 
 
 존재하지 않는 값을 4개 필드(회계결정코드/자재평가/전기키/차대변) 모두에 동시에 입력했을 때, 필드별로 개별 에러 메시지가 표시되는 것을 확인:
 
-![존재하지 않는 값 입력 화면](../images/ts/04_accountdetermination/checkexist_input.png)
+<img src="../images/ts/04_accountdetermination/checkexist_input.png" alt="존재하지 않는 값 입력 화면" width="500">
 
-![CheckExist 에러 화면 (4개 필드 개별 메시지)](../images/ts/04_accountdetermination/checkexist_error.png)
+<img src="../images/ts/04_accountdetermination/checkexist_error.png" alt="CheckExist 에러 화면 (4개 필드 개별 메시지)" width="500">
 
 필수값을 입력하지 않았을 때도 동일하게 필드별 개별 에러 메시지가 표시되는 것을 확인:
 
-![필수값 미입력 에러 화면](../images/ts/04_accountdetermination/checkrequired_error.png)
+<img src="../images/ts/04_accountdetermination/checkrequired_error.png" alt="필수값 미입력 에러 화면" width="500">
 
 ### 5.4.3. 이동유형+회계결정코드+평가클래스+계정 조합 중복 방지
 

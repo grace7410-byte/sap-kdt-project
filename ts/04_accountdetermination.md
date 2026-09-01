@@ -115,6 +115,10 @@ Shktx,
 
 🧪 테스트: 기존에는 빈 상태였다가, 전기키로 31을 선택하면 바로(자동으로) 차/대변도 31에 맞는 값으로 변경되는 것을 확인.
 
+![기존 - 전기키/차대변 모두 빈 상태](../images/ts/04_accountdetermination/additionalbinding_before.png)
+
+![반영 후 - 전기키(H/31) 선택 시 차대변(Credit/H) 자동 채움](../images/ts/04_accountdetermination/additionalbinding_after.png)
+
 ### 5.4.2. 자재평가/전기키/차대구분/회계결정코드 필수·존재 통합 검증
 
 - **적용 Method:** [`CheckExist (신규)`](../reference/04_account-determination.md) · [코드 보기](../src/04_account-determination/bimp/zbp_r_b07_t030.clas.abap) · BDEF: [코드 보기](../src/04_account-determination/bdef/ZR_B07_T030.bdef.asbdef)
@@ -206,7 +210,17 @@ ENDMETHOD.
 
 cf. 회계결정코드(Ktosl)는 이미 mandatory 설정이 있어서 필수값 체크는 프레임워크가 자동으로 해줌. 계정타입은 이상한 값을 넣어도 Determination이 자동으로 다시 채워주는 것을 확인.
 
-🧪 테스트: 3개 항목(필수 미입력/존재하지 않는 값 입력) 모두 정상 동작 확인.
+🧪 테스트: 두 시나리오(① 필수값 미입력, ② 존재하지 않는 값 입력) 모두 정상 동작 확인.
+
+존재하지 않는 값을 4개 필드(회계결정코드/자재평가/전기키/차대변) 모두에 동시에 입력했을 때, 필드별로 개별 에러 메시지가 표시되는 것을 확인:
+
+![존재하지 않는 값 입력 화면](../images/ts/04_accountdetermination/checkexist_input.png)
+
+![CheckExist 에러 화면 (4개 필드 개별 메시지)](../images/ts/04_accountdetermination/checkexist_error.png)
+
+필수값을 입력하지 않았을 때도 동일하게 필드별 개별 에러 메시지가 표시되는 것을 확인:
+
+![필수값 미입력 에러 화면](../images/ts/04_accountdetermination/checkrequired_error.png)
 
 ### 5.4.3. 이동유형+회계결정코드+평가클래스+계정 조합 중복 방지
 
@@ -261,5 +275,7 @@ ENDMETHOD.
 > 메시지 [`017`](../src/message-class.md#017)
 
 🧪 테스트: 이동유형/트랜잭션키/평가클래스/계정을 동일하게 넣고 저장했을 때 피드백 예시처럼 정상적으로 중복 체크됨.
+
+![CheckDuplicate 에러 화면](../images/ts/04_accountdetermination/checkduplicate_error.png)
 
 > additionalBinding으로 F4 팝업에서 행 선택 시 다른 필드를 자동으로 채우는 기능은 5.4.1에서 반영 완료되었다.

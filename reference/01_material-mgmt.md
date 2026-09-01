@@ -4,8 +4,8 @@ FS 문서: `01. 자재관리_FS_v10` · RAP 방식: Managed / V4 OData / With Dr
 
 | 구분 | 오브젝트명 | 베이스 | 설명 | 코드 |
 | --- | --- | --- | --- | --- |
-| Table | `ZTB07MARA` | - | 자재 마스터 (UUID PK, 자재코드/유형/그룹/가격/보관위치 등) | - |
-| Text Table | `ZTB07MARA_T` | - | 자재명 다국어 텍스트 (SPRAS 기반) | - |
+| Table | `ZTB07MARA` | - | 자재 마스터 (UUID PK, 자재코드/유형/그룹/가격/보관위치 등) | [`ZTB07MARA.tabl.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/01_material-mgmt/tables/ZTB07MARA.tabl.asddls) |
+| Text Table | `ZTB07MARA_T` | - | 자재명 다국어 텍스트 (SPRAS 기반) | [`ZTB07MARA_T.tabl.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/01_material-mgmt/tables/ZTB07MARA_T.tabl.asddls) |
 | Root BO | `ZR_B07_MARA` | ZTB07MARA | RAP Root Entity, Text Table Composition + 자재타입/플랜트 텍스트 Association 포함 (필드 일부 미반영, 진행중) | [`ZR_B07_MARA.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/01_material-mgmt/cds/ZR_B07_MARA.ddls.asddls) |
 | Interface | `ZI_B07_MARATEXT` | ZTB07MARA_T | 타 BO에서 자재 Text를 참조할 때 사용하는 인터페이스 뷰 | [`ZI_B07_MARATEXT.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/01_material-mgmt/cds/ZI_B07_MARATEXT.ddls.asddls) |
 | Projection | `ZC_B07_MARA` | ZR_B07_MARA | OData V4 노출용 Root (Redirect 완료, 정렬/검색/Value Help 반영. 2026-08-25 강사 피드백으로 자재코드(Matnr) valueHelpDefinition 제거) | [`ZC_B07_MARA.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/01_material-mgmt/cds/ZC_B07_MARA.ddls.asddls) |

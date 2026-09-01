@@ -93,7 +93,7 @@ Akontxt,
 
 🧪 테스트: 3개 필드 모두 F4 정상 동작 확인.
 
-![공급업체 분류(Fdgrv) Value Help](../images/ts/03_vendor/fdgrv_valuehelp.png)
+<img src="../images/ts/03_vendor/fdgrv_valuehelp.png" alt="공급업체 분류(Fdgrv) Value Help" width="500">
 
 ![공급업체 코드(Lifnr) Value Help](../images/ts/03_vendor/lifnr_valuehelp.png)
 

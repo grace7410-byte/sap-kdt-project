@@ -13,7 +13,8 @@
 | [`reference/`](./reference) | FS(Functional Spec) 모듈별 오브젝트 네이밍 카탈로그 (이름표) |
 | [`src/`](./src) | 실제 소스 코드 (Table / CDS / BDEF / Behavior Implementation) |
 | [`devlog/`](./devlog) | 날짜별 개발일지 · 모듈 실습 로그 · 재사용 가이드 |
-| `images/` | 개발일지용 스크린샷 (날짜별 하위 폴더) |
+| [`ts/`](./ts) | Technical Specification — 최초 설계 → FS 비교/분석 → TS 수정·보완 흐름 정리 (중간평가 제출용) |
+| [`images/`](./images) | devlog·TS 문서용 스크린샷 (`devlog/`, `ts/` 하위 폴더로 구분) |
 
 ---
 

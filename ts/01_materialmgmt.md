@@ -11,7 +11,7 @@
 - **2.1.1. 기본 구성:** DB Table `ZTB07MARA`(자재마스터)와 `ZTB07MARA_T`(자재마스터 텍스트 테이블)는 FS 배포 이전 팀원들과의 사전 논의를 거쳐 자체적으로 설계를 마친 상태였다. Text Table은 원본 테이블의 UUID를 FK로 가져오고 언어키(SPRAS)를 PK로 추가하는 구조였으며, 자재유형(Mtart)·단위(Meins)·표준가격(Stprs)·가격단위(Peinh)·통화(Waers)·플랜트(Werks)·저장위치(Lgort)·평가클래스(Bklas) 등 핵심 필드도 이미 대부분 반영되어 있었다.
 - **2.1.2. 삭제 플래그 및 제품군 논의:** 관리 필드로는 변경금지(Matfi) 외에 삭제 플래그(Deletion Flag)도 함께 두는 구조로 설계하였는데, 이는 삭제 플래그를 모든 마스터 테이블에 공통으로 두기도 했고, 사전에 검토한 PO–GR 관련 자료에서 "변경금지 플래그로 자재를 통제·관리한다"는 내용을 확인했기 때문이다. 또한 SO–GI 관련 SD 테이블을 함께 검토하며 Sales Area 기준 SO/DO 관리를 위해 제품군(Spart) 필드가 필요하다고 판단, 자체적으로 추가해 두었다.
 
-> `ZTB07MARA` / `ZTB07MARA_T` 테이블 정의는 아직 src에 실제 파일로 반영되지 않은 상태다(진행 중). 반영되는 대로 아래 코드 보기 링크를 채운다.
+테이블: [`ZTB07MARA`](../reference/01_material-mgmt.md) · [코드 보기](../src/01_material-mgmt/tables/ZTB07MARA.tabl.asddls), [`ZTB07MARA_T`](../reference/01_material-mgmt.md) · [코드 보기](../src/01_material-mgmt/tables/ZTB07MARA_T.tabl.asddls)
 
 ## 2) FS 확인 및 비교/분석
 

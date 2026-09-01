@@ -64,3 +64,117 @@ Root BO: [`ZR_B07_SKA1`](../reference/02_fi-account.md) · [코드 보기](../sr
 - **회사코드 (Bukrs) - `I_CompanyCode`:** 계정타입(Glact)에 대한 `_TypeText`(`I_GLAccountTypeText`) Association 추가
 - **계정통화 (Waers) - `ZI_B07_WAERS_F4`:** 통화 텍스트 연동 · [코드 보기](../src/00_common-searchhelp/cds/ZI_B07_WAERS_F4.ddls.asddls)
 - **조정계정 구분 (Mitkz) - `I_Reconciliationaccttypetext`:** 조정계정 유형 텍스트 연동, 검색 시 `ZI_B07_MITKZ_F4` 활용 · [코드 보기](../src/00_common-searchhelp/cds/ZI_B07_MITKZ_F4.ddls.asddls)
+
+## 4) 2차 TS 수정·보완 내역 (중간평가 2차)
+
+피드백 3건: ① 중복 계정 생성 허용, ② 조정계정유형/회사코드/통화/계정명 미입력 저장(의도한 것이면 무관 → FS 2.1 필드 정의상 원래 필수가 아니므로 보류), ③ 존재하지 않는 회사코드/통화/조정계정유형을 입력해도 저장됨. ①·③을 신규 Validation으로 반영.
+
+### 3.4.1. 계정번호 중복 체크
+
+- **적용 Method:** [`CheckDuplicate (신규)`](../reference/02_fi-account.md) · [코드 보기](../src/02_fi-account/bimp/zbp_r_b07_ska1.clas.abap) · BDEF: [코드 보기](../src/02_fi-account/bdef/ZR_B07_SKA1.bdef.asbdef)
+- **사유:** `Saknr`은 `ZEB07SAKNR`(UNIQUE 인덱스)로 정의만 되어 있고 PK는 UUID라, 실제 저장 시 중복 검증이 없던 문제. 04 회계계정결정관리의 `CheckAccountExist` 패턴을 참고해 SELECT → 루프 → READ TABLE 구조로 구현.
+
+```abap
+validation CheckDuplicate on save { create; field Saknr; }
+```
+
+```abap
+METHOD CheckDuplicate.
+  READ ENTITIES OF zr_b07_ska1 IN LOCAL MODE
+    ENTITY zr_b07_ska1
+    FIELDS ( Saknr ) WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_ska1).
+  SELECT saknr FROM ztb07ska1
+      INTO TABLE @DATA(lt_db_saknr). " 중복 확인할 테이블을 미리 담아두기
+  LOOP AT lt_ska1 INTO DATA(ls_ska1).
+    READ TABLE lt_db_saknr INTO DATA(lv_db_saknr) WITH KEY saknr = ls_ska1-Saknr.
+    IF sy-subrc = 0.
+      APPEND VALUE #( %tky = ls_ska1-%tky ) TO failed-zr_b07_ska1.
+      APPEND VALUE #(   %tky = ls_ska1-%tky
+                        %element-Saknr = if_abap_behv=>mk-on
+                        %msg = new_message(
+                                  id       = 'ZMSGE_B07'
+                                  number   = '017'
+                                  v1       = 'Account'
+                                  v2 = ls_ska1-Saknr
+                                  severity = if_abap_behv_message=>severity-error )
+                      ) TO reported-zr_b07_ska1.
+    ENDIF.
+  ENDLOOP.
+ENDMETHOD.
+```
+> 메시지 [`017`](../src/message-class.md#017)
+
+🧪 테스트: 중복 계정번호 저장 시도 시 정상적으로 막히는 것 확인.
+
+### 3.4.2. 회사코드/통화/조정계정유형 존재 검증
+
+- **적용 Method:** [`CheckExist (신규)`](../reference/02_fi-account.md) · [코드 보기](../src/02_fi-account/bimp/zbp_r_b07_ska1.clas.abap) · BDEF: [코드 보기](../src/02_fi-account/bdef/ZR_B07_SKA1.bdef.asbdef)
+- **사유:** F4 Help가 있어도 사용자가 직접 문자열을 입력하면 막지 못한다는 점을 재확인. T001/TCURC/`ZI_B07_MITKZ_F4`를 각각 조회 후, 값이 입력된 경우에만 실존 여부를 검증(미입력은 별도 사양이라 통과). `TRANSPORTING NO FIELDS` + `sy-subrc <> 0`로 최종 리팩터링.
+
+```abap
+validation CheckExist on save { create; update; field Bukrs, Waers, Mitkz; }
+```
+
+```abap
+METHOD CheckExist.
+  READ ENTITIES OF zr_b07_ska1 IN LOCAL MODE
+    ENTITY zr_b07_ska1
+    FIELDS ( Bukrs Waers Mitkz ) WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_ska1).
+
+  SELECT bukrs FROM t001
+      INTO TABLE @DATA(lt_db_bukrs). " T001에 담긴 회사코드인지 확인할 용도로 미리 조회 (K200)
+  SELECT waers FROM tcurc
+      INTO TABLE @DATA(lt_db_waers). " 마찬가지로 원본 테이블 tcurc 데이터 확인용으로 미리 조회
+  SELECT mitkz FROM zi_b07_mitkz_f4
+      INTO TABLE @DATA(lt_db_mitkz). " 직접 만든 서치헬프용으로 5개 값만 미리 담기
+
+  LOOP AT lt_ska1 INTO DATA(ls_ska1).
+    READ TABLE lt_db_bukrs TRANSPORTING NO FIELDS WITH KEY bukrs = ls_ska1-Bukrs.
+    IF sy-subrc <> 0 AND ls_ska1-Bukrs IS NOT INITIAL. " 회사코드를 입력한 경우에만 값 검증!
+      APPEND VALUE #( %tky = ls_ska1-%tky ) TO failed-zr_b07_ska1.
+      APPEND VALUE #(   %tky = ls_ska1-%tky
+                        %element-Bukrs = if_abap_behv=>mk-on
+                        %msg = new_message(
+                                  id       = 'ZMSGE_B07'
+                                  number   = '019'
+                                  v1       = 'Company Code'
+                                  v2 = ls_ska1-Bukrs
+                                  severity = if_abap_behv_message=>severity-error )
+                      ) TO reported-zr_b07_ska1.
+    ENDIF.
+
+    READ TABLE lt_db_waers TRANSPORTING NO FIELDS WITH KEY waers = ls_ska1-Waers.
+    IF sy-subrc <> 0 AND ls_ska1-Waers IS NOT INITIAL. " 통화키를 입력한 경우에만 값 검증!
+      APPEND VALUE #( %tky = ls_ska1-%tky ) TO failed-zr_b07_ska1.
+      APPEND VALUE #(   %tky = ls_ska1-%tky
+                        %element-Waers = if_abap_behv=>mk-on
+                        %msg = new_message(
+                                  id       = 'ZMSGE_B07'
+                                  number   = '019'
+                                  v1       = 'Currency'
+                                  v2 = ls_ska1-Waers
+                                  severity = if_abap_behv_message=>severity-error )
+                      ) TO reported-zr_b07_ska1.
+    ENDIF.
+
+    READ TABLE lt_db_mitkz TRANSPORTING NO FIELDS WITH KEY mitkz = ls_ska1-Mitkz.
+    IF sy-subrc <> 0 AND ls_ska1-Mitkz IS NOT INITIAL. " 값을 입력한 경우에만 검증할 수 있도록 하기!
+      APPEND VALUE #( %tky = ls_ska1-%tky ) TO failed-zr_b07_ska1.
+      APPEND VALUE #(   %tky = ls_ska1-%tky
+                        %element-Mitkz = if_abap_behv=>mk-on
+                        %msg = new_message(
+                                  id       = 'ZMSGE_B07'
+                                  number   = '019'
+                                  v1       = 'Reconciliation Account Type'
+                                  v2 = ls_ska1-Mitkz
+                                  severity = if_abap_behv_message=>severity-error )
+                      ) TO reported-zr_b07_ska1.
+    ENDIF.
+  ENDLOOP.
+ENDMETHOD.
+```
+> 메시지 [`019`](../src/message-class.md#019)
+
+🧪 테스트: 회사코드/통화/조정계정유형 각각 이상한 값을 넣었을 때 해당 필드만 개별로 에러가 뜨고, 값이 비어있으면(입력 안 한 경우) 검증을 건너뛰는 것 확인. 2개 이상 동시에 틀려도 각각 잘 잡아냄. 3개 필드를 동시에 틀리게 입력한 화면에서도 각 필드별 에러 메시지가 개별로 표시되는 것을 확인.

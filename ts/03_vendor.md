@@ -93,6 +93,10 @@ Akontxt,
 
 🧪 테스트: 3개 필드 모두 F4 정상 동작 확인.
 
+![공급업체 분류(Fdgrv) Value Help](../images/ts/03_vendor/fdgrv_valuehelp.png)
+
+![공급업체 코드(Lifnr) Value Help](../images/ts/03_vendor/lifnr_valuehelp.png)
+
 ### 4.4.2. 구매조직/구매그룹 라벨 중복 수정
 
 MDE에서 `Ekorg`, `Ekgrp` 두 필드의 `label`이 둘 다 '구매조직'으로 동일하게 되어 있던 것을 확인(Ekorg 어노테이션을 복사하다 생긴 문제로 추정). `Ekgrp` 쪽 라벨을 '구매그룹'으로 수정.
@@ -104,6 +108,12 @@ Ekorg;
 @UI.identification: [ { qualifier: 'PurchaseInfo', position: 20, label: '구매그룹' } ]
 Ekgrp;
 ```
+
+수정 전(둘 다 '구매조직'으로 표시)과 수정 후(각각 '구매조직'/'구매그룹'으로 분리) 화면 비교:
+
+![수정 전 - 구매조직 라벨 중복](../images/ts/03_vendor/ekgrp_label_before.png)
+
+![수정 후 - 구매조직/구매그룹 라벨 분리](../images/ts/03_vendor/ekgrp_label_after.png)
 
 ### 4.4.3. 신규 생성 시 거래종료(Loevm) 편집 불가 처리
 
@@ -140,3 +150,7 @@ ENDMETHOD.
 ```
 
 🧪 테스트: Edit(수정)으로 들어갔을 땐 체크박스가 열려있고, 새로 Create한 경우엔 회색(선택 불가)으로 나오는 것 확인.
+
+![수정 모드 - 거래종료 체크박스 활성화](../images/ts/03_vendor/loevm_edit_mode.png)
+
+![생성 모드 - 거래종료 체크박스 비활성화](../images/ts/03_vendor/loevm_create_mode.png)

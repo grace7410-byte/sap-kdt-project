@@ -3,7 +3,9 @@
 * 2026-08-30  최초 작성 — devlog: ../../../devlog/rap-dev/2026-08-30.md
 *             헤더(lhc_zr_b07_eina): SetDefaults/SetInfnrNumber/CheckRequired/CheckDuplicate/CheckEsokz
 *             아이템(lhc_eine): SetItemDefaults/CheckExist/CheckPositive
-* NOTE: "예외 처리 및 추가 로직"은 다음 작업일에 이어서 진행 예정 — 8/30 시점 WIP 상태입니다.
+* 2026-08-31  아이템(lhc_eine): get_instance_features 신규 추가 (Waers 동적 readonly 제어) —
+*             devlog: ../../../devlog/rap-dev/2026-08-31.md
+* NOTE: "예외 처리 및 추가 로직"은 다음 작업일에 이어서 진행 예정 — WIP 상태입니다.
 *=============================================================
 CLASS lhc_zr_b07_eina DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.
@@ -195,6 +197,8 @@ CLASS lhc_eine DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING keys FOR zi_b07_eine~checkexist.
     METHODS checkpositive FOR VALIDATE ON SAVE
       IMPORTING keys FOR zi_b07_eine~checkpositive.
+    METHODS get_instance_features FOR INSTANCE FEATURES
+      IMPORTING keys REQUEST requested_features FOR eine RESULT result.
 
 ENDCLASS.
 
@@ -255,6 +259,22 @@ CLASS lhc_eine IMPLEMENTATION.
                                             severity = if_abap_behv_message=>severity-error ) )
         TO reported-eine.
     ENDLOOP.
+  ENDMETHOD.
+
+  METHOD get_instance_features.
+    " Waers는 Netpr에 @Semantics.amount.currencyCode로 물려있는 통화 필드라
+    " field(readonly) 같은 정적 제어를 걸면 활성화 시 에러남(MARA의 Stprs/Waers와 동일한 이유).
+    " Composition Child라 ENTITY zi_b07_eine로 직접 못 읽으므로 Root를 거쳐 BY \_Eine로 조회.
+    READ ENTITIES OF zr_b07_eina IN LOCAL MODE
+      ENTITY zr_b07_eina
+      BY \_Eine
+      FIELDS ( Werks )
+      WITH CORRESPONDING #( keys )
+      RESULT DATA(lt_eine).
+
+    result = VALUE #( FOR ls_eine IN lt_eine
+                        ( %tky         = ls_eine-%tky
+                          %field-Waers = if_abap_behv=>fc-f-read_only ) ).
   ENDMETHOD.
 
 ENDCLASS.

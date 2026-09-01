@@ -1,9 +1,12 @@
 // ============================================================
 // 변경이력
 // 2026-08-30  최초 작성 — devlog: ../../../devlog/rap-dev/2026-08-30.md
+// 2026-08-31  Create 버튼이 안 뜨는 문제 디버깅 중 파일을 삭제 후 재생성 —
+//             devlog: ../../../devlog/rap-dev/2026-08-31.md
 // ============================================================
 projection;
 strict ( 2 );
+use draft;
 
 define behavior for ZC_B07_EINA //alias <alias_name>
 {
@@ -11,7 +14,13 @@ define behavior for ZC_B07_EINA //alias <alias_name>
   use update;
   use delete;
 
-  use association _Eine { create; }
+  use action Edit;
+  use action Activate;
+  use action Resume;
+  use action Discard;
+  use action Prepare;
+
+  use association _Eine { create; with draft; }
 }
 
 define behavior for ZC_B07_EINE //alias <alias_name>
@@ -19,5 +28,5 @@ define behavior for ZC_B07_EINE //alias <alias_name>
   use update;
   use delete;
 
-  use association _Eina;
+  use association _Eina { with draft; }
 }

@@ -115,9 +115,9 @@ Shktx,
 
 🧪 테스트: 기존에는 빈 상태였다가, 전기키로 31을 선택하면 바로(자동으로) 차/대변도 31에 맞는 값으로 변경되는 것을 확인.
 
-![기존 - 전기키/차대변 모두 빈 상태](../images/ts/04_accountdetermination/additionalbinding_before.png)
+<img src="../images/ts/04_accountdetermination/additionalbinding_before.png" alt="기존 - 전기키/차대변 모두 빈 상태" width="500">  
 
-![반영 후 - 전기키(H/31) 선택 시 차대변(Credit/H) 자동 채움](../images/ts/04_accountdetermination/additionalbinding_after.png)
+<img src="../images/ts/04_accountdetermination/additionalbinding_after.png" alt="반영 후 - 전기키(H/31) 선택 시 차대변(Credit/H) 자동 채움" width="500">
 
 ### 5.4.2. 자재평가/전기키/차대구분/회계결정코드 필수·존재 통합 검증
 

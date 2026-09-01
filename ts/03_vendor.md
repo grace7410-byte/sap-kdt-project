@@ -47,7 +47,7 @@ Root BO: [`ZR_B07_LFA1`](../reference/03_vendor.md) · [코드 보기](../src/03
 
 - **조정계정 (Akont) & 계정 타입 (Glact) - `ZR_B07_SKA1`:** 조정계정 코드에 계정명(`Akontxt`)과 계정타입(`Glact`/`Glactxt`)까지 함께 끌어와 Object Page "계정 정보" Facet에서 노출하도록 MDE 확장.
 
-> 공급업체 자체 서치헬프(`ZI_B07_LFA1_F4`)는 아직 src에 반영되지 않은 상태다(잔여 이슈 — [`07_remaining-issues.md`](./07_remaining-issues.md) 참고).
+> 공급업체 자체 서치헬프(`ZI_B07_LFA1_F4`)는 1차 TS 시점에는 아직 src에 반영되지 않은 상태였다(잔여 이슈 — [`README.md`](./README.md#remainingissues) 참고). 2차에서 `ZI_B07_LIFNR_F4`라는 이름으로 신규 생성해 해결 — 아래 4.4.1 참고.
 
 ## 4) 2차 TS 수정·보완 내역 (중간평가 2차)
 
@@ -93,7 +93,7 @@ Akontxt,
 
 🧪 테스트: 3개 필드 모두 F4 정상 동작 확인.
 
-<img src="../images/ts/03_vendor/fdgrv_valuehelp.png" alt="공급업체 분류(Fdgrv) Value Help" width="500">
+![공급업체 분류(Fdgrv) Value Help](../images/ts/03_vendor/fdgrv_valuehelp.png)
 
 ![공급업체 코드(Lifnr) Value Help](../images/ts/03_vendor/lifnr_valuehelp.png)
 

@@ -48,3 +48,95 @@ Root BO: [`ZR_B07_LFA1`](../reference/03_vendor.md) · [코드 보기](../src/03
 - **조정계정 (Akont) & 계정 타입 (Glact) - `ZR_B07_SKA1`:** 조정계정 코드에 계정명(`Akontxt`)과 계정타입(`Glact`/`Glactxt`)까지 함께 끌어와 Object Page "계정 정보" Facet에서 노출하도록 MDE 확장.
 
 > 공급업체 자체 서치헬프(`ZI_B07_LFA1_F4`)는 아직 src에 반영되지 않은 상태다(잔여 이슈 — [`07_remaining-issues.md`](./07_remaining-issues.md) 참고).
+
+## 4) 2차 TS 수정·보완 내역 (중간평가 2차)
+
+피드백 4건: ① 공급업체/계정 Value Help 필요, ② 구매정보 구매조직 필드 라벨 중복, ③ 신규 생성 시 거래종료 옵션 필요성 의문, ④ 계정/구매조직/최소주문금액 미입력 저장(의도한 것이면 무관 → 보류). ①~③을 반영.
+
+### 4.4.1. Value Help 3종 연결
+
+1차 TS 잔여 이슈("공급업체 Lifnr 서치헬프 1개 미완료")에 대응하는 작업이기도 하다. 공급업체 분류(Fdgrv)·공급업체 코드(Lifnr)·계정(Akont) 모두 서치헬프 자체는 이미 만들어져 있었는데, Projection View에 연결이 안 되어 있던 것을 확인했다.
+
+- **공급업체 분류(Fdgrv):** 기존 `zi_b07_fdgrv_f4` 연결(이미 구현되어 있던 서치헬프 적용)
+- **공급업체 코드(Lifnr):** 새 서치헬프 [`ZI_B07_LIFNR_F4`](../reference/00_common-searchhelp.md) 신규 생성 후 연결 · [코드 보기](../src/00_common-searchhelp/cds/ZI_B07_LIFNR_F4.ddls.asddls) — `ZR_B07_LFA1` 기반, 공급업체번호/공급업체명/분류/분류설명 노출
+- **계정(Akont):** 기존 `zi_b07_saknr_f4` 연결
+
+관련 오브젝트: [`ZC_B07_LFA1`](../reference/03_vendor.md) · [코드 보기](../src/03_vendor/cds/ZC_B07_LFA1.ddls.asddls)
+```abap
+/********* 공급업체 분류 ************/
+@UI.selectionField: [{  position: 10  }]
+@ObjectModel.text.element: ['Fdgxt']
+@UI.textArrangement: #TEXT_FIRST
+@Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_B07_FDGRV_F4', element: 'Fdgrv' } }]
+Fdgrv,
+Fdgxt,
+
+/********* 공급업체 번호 ************/
+@Search.defaultSearchElement: true
+@Search.fuzzinessThreshold: 0.8
+@UI.selectionField: [{  position: 20  }]
+@ObjectModel.text.element: ['Name1']
+@UI.textArrangement: #TEXT_FIRST
+@Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_B07_LIFNR_F4', element: 'Lifnr' } }]
+Lifnr,
+Name1,
+
+/*********   조정계정   ************/
+@Search.defaultSearchElement: true
+@Search.fuzzinessThreshold: 0.8
+@ObjectModel.text.element: ['Akontxt']
+@UI.textArrangement: #TEXT_FIRST
+@Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_B07_SAKNR_F4', element: 'Saknr' } }]
+Akont,
+Akontxt,
+```
+
+🧪 테스트: 3개 필드 모두 F4 정상 동작 확인.
+
+### 4.4.2. 구매조직/구매그룹 라벨 중복 수정
+
+MDE에서 `Ekorg`, `Ekgrp` 두 필드의 `label`이 둘 다 '구매조직'으로 동일하게 되어 있던 것을 확인(Ekorg 어노테이션을 복사하다 생긴 문제로 추정). `Ekgrp` 쪽 라벨을 '구매그룹'으로 수정.
+
+관련 오브젝트: [`ZC_B07_LFA1`](../reference/03_vendor.md) MDE · [코드 보기](../src/03_vendor/cds/ZC_B07_LFA1.ddlx.asddlx)
+```abap
+@UI.identification: [ { qualifier: 'PurchaseInfo', position: 10, label: '구매조직' } ]
+Ekorg;
+@UI.identification: [ { qualifier: 'PurchaseInfo', position: 20, label: '구매그룹' } ]
+Ekgrp;
+```
+
+### 4.4.3. 신규 생성 시 거래종료(Loevm) 편집 불가 처리
+
+신규 벤더를 만들자마자 "거래 종료"로 체크할 수 있는 게 로직상 이상하다는 피드백. 01 자재관리에서 정립한 동적 Feature Control 패턴을 재적용 — 생성 시에는 `Loevm`을 read only 처리하고, 수정(Update) 시에만 편집 가능하도록 구현.
+
+- **적용 Method:** [`get_instance_features (Loevm)`](../reference/03_vendor.md) · [코드 보기](../src/03_vendor/bimp/zbp_r_b07_lfa1.clas.abap) · BDEF: [코드 보기](../src/03_vendor/bdef/ZR_B07_LFA1.bdef.asbdef)
+
+```abap
+field ( features : instance ) Loevm;
+```
+
+```abap
+METHOD get_instance_features.
+  DATA lt_result TYPE TABLE FOR FEATURES RESULT zr_b07_lfa1.
+  READ ENTITIES OF zr_b07_lfa1 IN LOCAL MODE
+    ENTITY zr_b07_lfa1
+    FIELDS ( LifUuid )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_lfa1).
+  SELECT lif_uuid FROM ztb07lfa1
+      INTO TABLE @DATA(lt_dummy)." 미리 DB 테이블 데이터를 받아놓고
+  LOOP AT lt_lfa1 INTO DATA(ls_lfa1). " Uuid(=PK) 기준으로 겹치는 데이터가 있다면 기존 벤더 수정중!
+  READ TABLE lt_dummy INTO DATA(lv_dummy) WITH KEY lif_uuid = ls_lfa1-LifUuid.
+    " 조회 성공 = 기존 벤더(Update) = 거래종료 편집 가능
+    " 조회 실패 = 신규 생성 중(Create) = 거래종료 readonly
+    DATA(lv_readonly) = COND #( WHEN sy-subrc = 0
+                                 THEN if_abap_behv=>fc-f-unrestricted
+                                 ELSE if_abap_behv=>fc-f-read_only ).
+    APPEND VALUE #( %tky         = ls_lfa1-%tky
+                     %field-Loevm = lv_readonly ) TO lt_result.
+  ENDLOOP.
+  result = lt_result.
+ENDMETHOD.
+```
+
+🧪 테스트: Edit(수정)으로 들어갔을 땐 체크박스가 열려있고, 새로 Create한 경우엔 회색(선택 불가)으로 나오는 것 확인.

@@ -2,6 +2,7 @@
 // 변경이력
 // 2026-08-18  최초 작성 + 계정타입(Glact/Glactx) 필드 추가 반영 — devlog: ../../../devlog/rap-dev/2026-08-18.md
 // 2026-08-26  공급업체 분류(Fdgrv)/공급업체 번호(Lifnr)/조정계정(Akont) Value Help 연결 — devlog: ../../../devlog/rap-dev/2026-08-26.md
+// 2026-09-01  구매조직(Ekorg)/구매그룹(Ekgrp) Value Help 연결(05번 작업 중 신규 생성한 서치헬프 재사용) — devlog: ../../../devlog/rap-dev/2026-09-01.md
 // ============================================================
 // NOTE: 원문 그대로 옮김 — text.element가 'Glactxt'를 참조하는데 실제 필드명은 'Glactx'로 보임
 //       (원본 노트의 표기 불일치 가능성, MDE 파일도 동일하게 'Glactxt'로 되어 있어 그대로 둠. 추후 확인 필요)
@@ -60,7 +61,12 @@ define root view entity ZC_B07_LFA1
       /*********   거래종료   ************/
       Loevm,
 
+      /*********   그 외   ************/
+      // 서치헬프
+      @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_B07_EKORG_F4', element: 'Ekorg' } }]
       Ekorg,
+      // 서치헬프
+      @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_B07_EKGRP_F4', element: 'Ekgrp' } }]
       Ekgrp,
 
       Waers,

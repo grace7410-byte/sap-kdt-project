@@ -2,12 +2,12 @@
 
 - **문서 유형:** Technical Specification
 - **작성일:** 2026-08-24 (v1.0) / 2026-09-01 (v2.0)
-- **버전:** v2.0 (중간평가 2차 제출본, 01~04 반영)
+- **버전:** v2.0 (중간평가 2차 제출본, 01~05 반영)
 - **플랫폼:** S/4HANA (RAP – Managed)
-- **대상 오브젝트:** 00.공통(자재타입/SearchHelp), 01.자재관리, 02.FI계정관리, 03.벤더관리, 04.회계계정결정관리
+- **대상 오브젝트:** 00.공통(자재타입/SearchHelp), 01.자재관리, 02.FI계정관리, 03.벤더관리, 04.회계계정결정관리, 05.구매정보레코드관리
 - **작성자:** 박가을 (B07)
-- **기준 개발기간:** 2026-08-12 ~ 2026-08-26 (2차 추가 피드백 반영분 기준)
-- **상태:** 작성 중 (2차 중간평가) — 각 모듈 문서의 "4) 2차 TS 수정·보완 내역" 절이 이번 회차 신규 반영분이다. 05.구매정보레코드관리는 이번 2차 제출본에는 포함하지 않고 3차(06과 함께) 제출 예정.
+- **기준 개발기간:** 2026-08-12 ~ 2026-09-01 (2차 추가 피드백 반영분 + 05 신규 반영분 기준)
+- **상태:** 작성 중 (2차 중간평가) — 01~04 모듈 문서의 "4) 2차 TS 수정·보완 내역" 절이 이번 회차 신규 반영분이다. 05.구매정보레코드관리는 별도 "FS 비교" 단계 없이 "1) 최초 설계"(FS 개요·신규 계층 구조) → "2) TS 수정·보완 내역"(FS 미정의 필드 5종 추가 + 신규 검증 로직 4종) 구성으로 이번에 신규 포함한다(예외 처리·전체 검증 테스트는 아직 WIP — 06과 함께 3차에서 이어서 보완 예정).
 
 ## 목적
 
@@ -27,8 +27,9 @@
 3. [`[02] FI계정관리`](./02_fiaccount.md)
 4. [`[03] 벤더(공급업체)관리`](./03_vendor.md)
 5. [`[04] 회계계정결정관리`](./04_accountdetermination.md)
-6. [종합 – 오류 해결 이력](./README.md#errorlog)
-7. [잔여 이슈 (다음 중간평가 반영 예정)](./README.md#remainingissues)
+6. [`[05] 구매정보레코드관리`](./05_purchaseinfo.md)
+7. [종합 – 오류 해결 이력](./README.md#errorlog)
+8. [잔여 이슈 (다음 중간평가 반영 예정)](./README.md#remainingissues)
 
 ## 개발 진행 척도 (2026-09-01 기준)
 
@@ -39,7 +40,7 @@
 | 02. FI계정관리 | 02_FI계정관리_FS | CDS View·UI 완료. 2차: 계정번호 중복 체크(`CheckDuplicate` 신규), 회사코드/통화/조정계정유형 존재 검증(`CheckExist` 신규) 반영 |
 | 03. 벤더관리 | 03_밴더관리_FS | CDS View·UI·Behavior(Draft, 자동채번) 완료. 2차: Value Help 3종 연결, 구매조직/구매그룹 라벨 중복 수정, 거래종료(Loevm) 편집 제어 반영 |
 | 04. 회계계정결정관리 | 04_회계계정결정관리_FS | CDS View·UI·Behavior(순번 자동채번, 계정 검증) 완료. 2차: 전기키 F4 선택 시 차/대변 즉시 자동 채움(additionalBinding), 필수·존재 통합 검증(`CheckExist`), 조합 중복 방지(`CheckDuplicate`) 반영 |
-| 05. 구매정보레코드 | 05_구매정보레코드관리_FS | CDS 4종+MDE 2종+Service Definition/Binding 완료, 화면 출력 확인. BDEF/BIMP는 CRUD 골격 + 주요 로직까지 작성, 예외 처리·검증 테스트는 WIP — 이번 2차 TS에는 미포함, 3차(06과 함께) 제출 예정 |
+| 05. 구매정보레코드 | 05_구매정보레코드관리_FS | CDS 4종+MDE 2종+Service Definition/Binding(헤더+아이템 모두 expose) 완료, Value Help 7종 연결. FS 미정의 필드 5종(Esokz/Ekorg/Ekgrp/Peinh/Bprme) 추가 + 헤더(SetDefaults/CheckDuplicate/CheckEsokz)·아이템(CheckExist) 신규 검증 로직 반영해 이번 2차 TS에 신규 포함. 예외 처리·전체 검증 테스트는 WIP — 06과 함께 3차에서 이어서 보완 예정 |
 
 각 모듈 문서 안의 코드 링크는 원칙적으로 두 곳을 함께 건다: 해당 FS/오브젝트가 정리된 `reference/` 카탈로그 문서, 그리고 실제 코드가 있는 `src/` 파일("코드 보기"). src에 아직 반영되지 않은 오브젝트는 코드 보기 링크를 생략한다.
 
@@ -68,5 +69,5 @@
 - **[02]** 1차 잔여 이슈였던 `CheckAccountExist` 패턴 적용을 2차에서 `CheckDuplicate`/`CheckExist`로 반영 완료 — [`02_fi-account`](../reference/02_fi-account.md)
 - **[03]** 2차 피드백(①~③) 반영 완료 — [`03_vendor`](../reference/03_vendor.md)
 - **[04]** 2차 피드백(①~③) + UX 개선(additionalBinding) 반영 완료 — [`04_account-determination`](../reference/04_account-determination.md)
-- **[05]** 구매정보레코드 CDS/MDE/Service까지 완료, 화면 출력 확인. BDEF/BIMP 예외 처리·전체 검증 테스트가 아직 WIP — 이번 2차 TS에는 포함하지 않고, 3차 때 06과 함께 정리 예정
-- **[종합]** 이번 2차에서 01~04 모두 이번 주 강사 피드백을 반영 완료했다. 다음 3차 중간평가 시 05·06 TS가 신규로 반영될 예정이다.
+- **[05]** 구매정보레코드 CDS/MDE/Service(헤더+아이템 expose)/Value Help까지 완료. FS 미정의 필드 5종 추가 + 헤더·아이템 신규 검증 로직(SetDefaults/CheckDuplicate/CheckEsokz/CheckExist)은 이번 2차 TS에 신규 반영했으나, 개별 화면 테스트와 예외 처리는 아직 WIP — [`05_purchase-info`](../reference/05_purchase-info.md) 참고, 3차 때 06과 함께 이어서 정리 예정
+- **[종합]** 이번 2차에서 01~04 강사 피드백 반영 + 05 신규 로직 반영까지 완료했다. 다음 3차 중간평가 시 05 테스트 마무리·06 TS가 신규로 반영될 예정이다.

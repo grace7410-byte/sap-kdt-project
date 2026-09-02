@@ -2,6 +2,7 @@
 // 변경이력
 // 2026-08-27  최초 작성 — devlog: ../../../devlog/rap-dev/2026-08-27.md
 // 2026-08-30  txz01(구매정보내역) 필드 추가 — devlog: ../../../devlog/rap-dev/2026-08-30.md
+// 2026-09-01  txz01 → irtxt(신규 데이터엘리먼트 zeb07irtxt, 도메인 ZDB07IRTXT) 필드 교체 — devlog: ../../../devlog/rap-dev/2026-09-01.md
 // ============================================================
 @EndUserText.label : '구매정보레코드 테이블'
 @AbapCatalog.enhancement.category : #NOT_EXTENSIBLE
@@ -19,6 +20,6 @@ define table ztb07eina {
   ekgrp        : ekgrp;
   meins        : meins;
   loekz        : iloea;
-  txz01        : txz01;
+  irtxt        : zeb07irtxt;
   include zsb07timestamp;
 }

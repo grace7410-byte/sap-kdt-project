@@ -34,11 +34,11 @@ FS 2.1 테이블 정의서에는 없지만, FS의 다른 요구사항을 충족�
 
 화면 반영 확인:
 
-<img src="../images/ts/05_purchase-info/object_page_fields.png" alt="구매정보레코드 정보 - 레코드유형/구매조직/구매그룹 반영 확인" width="500">
+<img src="../images/ts/05_purchaseinfo/object_page_fields.png" alt="구매정보레코드 정보 - 레코드유형/구매조직/구매그룹 반영 확인" width="500">
 
-<img src="../images/ts/05_purchase-info/item_detail_fields.png" alt="아이템 상세 - 가격단위/발주단위/최대구매수량/유효종료일/예정배송일수 반영 확인" width="500">
+<img src="../images/ts/05_purchaseinfo/item_detail_fields.png" alt="아이템 상세 - 가격단위/발주단위/최대구매수량/유효종료일/예정배송일수 반영 확인" width="500">
 
-> 🐛 위 첫 번째 화면의 "아이템" Facet에서 `Unable to find annotationPath undefined` 오류가 함께 캡처되어 있다. 아직 devlog에 정식으로 기록되지 않은 이슈로 보이는데, 이미 해결된 건지 아니면 지금도 재현되는 문제인지 확인 필요.
+> 🐛 위 첫 번째 화면에는 "아이템" Facet에서 `Unable to find annotationPath undefined` 오류가 함께 캡처되어 있다. 아이템 MDE와 Facet/헤더 인포 어노테이션을 모두 갖춰놓고도 뜨지 않아 원인을 찾아본 결과, Service Definition(`ZUI_B07_EINA`)에서 아이템(`ZC_B07_EINE`)까지 expose하지 않은 게 원인이었다. `expose ZC_B07_EINE;` 추가로 해결 완료 — 현재 소스([코드 보기](../src/05_purchase-info/srv/ZUI_B07_EINA.srvd.asddls))에는 반영되어 있다.
 
 ### 6.2.2. 동일 공급업체 + 자재 조합 중복 방지 체크 로직 추가 — `CheckDuplicate`
 

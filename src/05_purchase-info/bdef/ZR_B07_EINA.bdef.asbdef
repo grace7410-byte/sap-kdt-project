@@ -2,6 +2,10 @@
 // 변경이력
 // 2026-08-30  최초 작성 (Managed, with draft) — devlog: ../../../devlog/rap-dev/2026-08-30.md
 // 2026-08-31  Waers 정적 readonly → features:instance로 전환 — devlog: ../../../devlog/rap-dev/2026-08-31.md
+// 2026-09-02  SetVendorMaterialUuid determination 신규 추가(Lifnr/Matnr → LifUuid/MatUuid 변환).
+//             modify 단계 determination 실행 순서상 SetDefaults보다 앞에 배치(uuid 채움 → 기본값 채움 순).
+//             irtxt 필드명이 Irtxt와 동일해져 corresponding으로 흡수됨에 따라 개별 매핑(Irtxt=txz01) 주석 처리 —
+//             devlog: ../../../devlog/rap-dev/2026-09-02.md
 // ============================================================
 // NOTE: "예외 처리 및 추가 로직"은 다음 작업일에 이어서 진행 예정이라 아직 미완성입니다.
 managed implementation in class zbp_r_b07_eina unique;
@@ -23,6 +27,7 @@ etag master LocChangedAt
   update;
   delete;
 
+  determination SetVendorMaterialUuid on modify { create; }
   determination SetDefaults on modify { create; }
   determination SetInfnrNumber on save { create; }
 
@@ -49,7 +54,7 @@ etag master LocChangedAt
       //    esokz =
       InfUuid      = inf_uuid;
       //    Infnr = infnr;
-      Irtxt        = txz01;
+      //    Irtxt        = txz01; 아니고 이제 irtxt(corresponding으로 자동 매핑됨)
       LifUuid      = lif_uuid;
       LocChangedAt = loc_changed_at;
       //    Loekz

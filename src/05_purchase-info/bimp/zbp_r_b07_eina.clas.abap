@@ -5,6 +5,14 @@
 *             아이템(lhc_eine): SetItemDefaults/CheckExist/CheckPositive
 * 2026-08-31  아이템(lhc_eine): get_instance_features 신규 추가 (Waers 동적 readonly 제어) —
 *             devlog: ../../../devlog/rap-dev/2026-08-31.md
+* 2026-09-02  헤더(lhc_zr_b07_eina): SetVendorMaterialUuid 신규 추가(Lifnr/Matnr 입력값을 LifUuid/MatUuid로
+*             변환) — 화면 입력창(Lifnr/Matnr)이 실제로는 Association 파생 표시용 필드라 저장 시 FK가
+*             비어있는 문제 대응. CheckRequired는 LifUuid/MatUuid 대신 Lifnr/Matnr 필드를 검사하도록 수정
+*             (진짜 원인 — CheckRequired가 화면에 아직 안 채워지는 UUID를 검사하고 있었음). SetInfnrNumber는
+*             연도+뒤 6자리 조합 로직을 제거하고 NUMBER_GET_NEXT 채번 결과를 그대로 사용하도록 단순화 —
+*             devlog: ../../../devlog/rap-dev/2026-09-02.md
+* NOTE: SetVendorMaterialUuid가 존재하지 않는 Lifnr/Matnr 입력값에 대해 에러 처리 없이 그냥 넘어가는 문제가
+*       남아있음(잘못된 값이어도 저장이 통과됨) — 다음 작업일 처리 예정, 아직 코드 미반영.
 * NOTE: "예외 처리 및 추가 로직"은 다음 작업일에 이어서 진행 예정 — WIP 상태입니다.
 *=============================================================
 CLASS lhc_zr_b07_eina DEFINITION INHERITING FROM cl_abap_behavior_handler.
@@ -12,6 +20,8 @@ CLASS lhc_zr_b07_eina DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
     METHODS get_instance_authorizations FOR INSTANCE AUTHORIZATION
       IMPORTING keys REQUEST requested_authorizations FOR zr_b07_eina RESULT result.
+    METHODS setvendormaterialuuid FOR DETERMINE ON MODIFY
+      IMPORTING keys FOR zr_b07_eina~setvendormaterialuuid.
     METHODS setdefaults FOR DETERMINE ON MODIFY
       IMPORTING keys FOR zr_b07_eina~setdefaults.
     METHODS setinfnrnumber FOR DETERMINE ON SAVE
@@ -28,6 +38,44 @@ ENDCLASS.
 CLASS lhc_zr_b07_eina IMPLEMENTATION.
 
   METHOD get_instance_authorizations.
+  ENDMETHOD.
+
+  METHOD SetVendorMaterialUuid.
+    DATA: lt_update TYPE TABLE FOR UPDATE zr_b07_eina.
+
+    READ ENTITIES OF zr_b07_eina IN LOCAL MODE
+      ENTITY zr_b07_eina
+        FIELDS ( LifUuid MatUuid Lifnr Matnr )
+        WITH CORRESPONDING #( keys )
+      RESULT DATA(lt_eina).
+
+    SELECT lif_uuid, lifnr FROM ztb07lfa1
+      INTO TABLE @DATA(lt_db_lfa1).
+
+    SELECT mat_uuid, matnr FROM ztb07mara
+      INTO TABLE @DATA(lt_db_mara).
+
+    LOOP AT lt_eina INTO DATA(ls_eina)
+         WHERE ( LifUuid IS INITIAL AND Lifnr IS NOT INITIAL )
+            OR ( MatUuid IS INITIAL AND Matnr IS NOT INITIAL ).
+
+      READ TABLE lt_db_lfa1 INTO DATA(ls_db_lfa1) WITH KEY lifnr = ls_eina-Lifnr.
+      READ TABLE lt_db_mara INTO DATA(ls_db_mara) WITH KEY matnr = ls_eina-Matnr.
+
+      APPEND VALUE #( %tky    = ls_eina-%tky
+                       LifUuid = COND #( WHEN ls_eina-LifUuid IS INITIAL AND sy-subrc = 0
+                                         THEN ls_db_lfa1-lif_uuid ELSE ls_eina-LifUuid )
+                       MatUuid = COND #( WHEN ls_eina-MatUuid IS INITIAL
+                                         THEN ls_db_mara-mat_uuid ELSE ls_eina-MatUuid )
+                     ) TO lt_update.
+    ENDLOOP.
+
+    IF lt_update IS NOT INITIAL.
+      MODIFY ENTITIES OF zr_b07_eina IN LOCAL MODE
+        ENTITY zr_b07_eina
+          UPDATE FIELDS ( LifUuid MatUuid )
+          WITH lt_update.
+    ENDIF.
   ENDMETHOD.
 
   METHOD SetDefaults.
@@ -73,12 +121,9 @@ CLASS lhc_zr_b07_eina IMPLEMENTATION.
           number      = lv_number
         EXCEPTIONS
           OTHERS      = 1.
-      IF sy-subrc = 0. " 연도(4자리) + 뒤 6자리로 구성
-        DATA(lv_seq)   = substring( val = lv_number
-                            off = strlen( lv_number ) - 6 ).
-        DATA(lv_infnr) = |{ sy-datum(4) }{ lv_seq }|.
+      IF sy-subrc = 0. " 미리 구성해둔 넘버레인지를 그대로 사용(연도+뒤 6자리 가공 로직 제거)
         APPEND VALUE #( %tky  = ls_eina-%tky
-                         Infnr = lv_infnr ) TO lt_update.
+                         Infnr = lv_number ) TO lt_update.
       ELSE.
         APPEND VALUE #( %tky = ls_eina-%tky
                      %msg = new_message( id = 'ZMSGE_B07'
@@ -99,11 +144,13 @@ CLASS lhc_zr_b07_eina IMPLEMENTATION.
   METHOD CheckRequired.
     READ ENTITIES OF zr_b07_eina IN LOCAL MODE
       ENTITY zr_b07_eina
-        FIELDS ( LifUuid MatUuid Meins )
-        WITH CORRESPONDING #( keys )
+*        FIELDS ( LifUuid MatUuid Meins )
+*        WITH CORRESPONDING #( keys )
+      ALL FIELDS WITH CORRESPONDING #( keys )
       RESULT DATA(lt_eina).
     LOOP AT lt_eina INTO DATA(ls_eina).
-      IF ls_eina-LifUuid IS INITIAL.
+*      IF ls_eina-LifUuid IS INITIAL.
+      IF ls_eina-Lifnr IS INITIAL.
         APPEND VALUE #( %tky = ls_eina-%tky ) TO failed-zr_b07_eina.
         APPEND VALUE #( %tky = ls_eina-%tky
                         %element-LifUuid = if_abap_behv=>mk-on
@@ -113,7 +160,8 @@ CLASS lhc_zr_b07_eina IMPLEMENTATION.
                                             severity = if_abap_behv_message=>severity-error ) )
             TO reported-zr_b07_eina.
       ENDIF.
-      IF ls_eina-MatUuid IS INITIAL.
+*      IF ls_eina-MatUuid IS INITIAL.
+      IF ls_eina-Matnr IS INITIAL.
         APPEND VALUE #( %tky = ls_eina-%tky ) TO failed-zr_b07_eina.
         APPEND VALUE #( %tky = ls_eina-%tky
                         %element-MatUuid = if_abap_behv=>mk-on

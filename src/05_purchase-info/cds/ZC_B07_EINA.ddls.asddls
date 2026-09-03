@@ -3,6 +3,8 @@
 // 2026-08-27  최초 작성 (Redirect + 필드순서/Sort/검색조건 반영) — devlog: ../../../devlog/rap-dev/2026-08-27.md
 // 2026-08-30  구매정보내역(Irtxt) 필드 추가 — devlog: ../../../devlog/rap-dev/2026-08-30.md
 // 2026-09-01  Value Help 6종 연결(Esokz/Lifnr/Matnr/Ekorg/Ekgrp/Meins/Irtxt) — devlog: ../../../devlog/rap-dev/2026-09-01.md
+// 2026-09-02  Ekgrp Value Help가 Projection 단에서는 안 먹혀서 Root View(ZR_B07_EINA)로 이동 —
+//             devlog: ../../../devlog/rap-dev/2026-09-02.md
 // ============================================================
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: '구매정보레코드 헤더 Projection View'
@@ -68,8 +70,7 @@ define root view entity ZC_B07_EINA
       // 서치헬프
       @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_B07_EKORG_F4', element: 'Ekorg' } }]
       Ekorg,
-      // 서치헬프
-      @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_B07_EKGRP_F4', element: 'Ekgrp' } }]
+      // 서치헬프 -> Root View에 존재
       Ekgrp,
       // 서치헬프
       @Consumption.valueHelpDefinition: [{ entity: { name: 'ZI_B07_MEINS_F4', element: 'Msehi' } }]

@@ -1,9 +1,12 @@
 // ============================================================
 // 변경이력
 // 2026-08-16  최초 작성 (여러 번 시행착오 끝 최종본, 상세는 devlog 참고) — devlog: ../../../devlog/rap-dev/2026-08-16.md
+// 2026-09-04  자재 신규 생성 시 ztb07mara_t에 아직 텍스트가 없어 Value Help가 0건으로
+//             뜨는 문제 발견. base table을 ztb07mara_t → t002/t002t 조합으로 교체하는
+//             여러 시행착오(자기참조로 언어키 과다 노출 → 세션언어 고정 시 KO/KO 중복 등)
+//             끝에, t002t를 기준으로 t002를 조인해 LanguageKey(sprsl)와 Language(laiso)를
+//             분리하는 최종 구조로 재작성 — devlog: ../../../devlog/rap-dev/2026-09-04.md
 // ============================================================
-// NOTE: mara_t의 spras와 t002t의 spras/sprsl은 의미가 다름 (텍스트 테이블 vs 언어 테이블).
-//       t002(언어 테이블) + t002t(언어명 텍스트)를 각각 join해야 정확한 언어명이 나옴.
 @AbapCatalog.viewEnhancementCategory: [#NONE]
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: '언어 F4 Help'
@@ -12,20 +15,27 @@
 @Search.searchable: true
 
 define view entity zi_b07_spras_f4
-  as select distinct from ztb07mara_t as a
-    inner join            t002        as b on a.spras = b.spras
-    left outer join       t002t       as c on  b.spras = c.spras
-                                           and c.sprsl = $session.system_language
+  as select from t002t as a
+    inner join   t002  as b on a.sprsl = b.spras
 {
-      @UI.hidden: true
-  key a.spras as LanguageKey, -- '3', 'E'
+       @Search.defaultSearchElement: true
+       @UI.hidden: true
+  key  a.sprsl as LanguageKey, -- '3', 'E'
 
-      @Search.defaultSearchElement: true
-      @UI.textArrangement: #TEXT_LAST
-      @ObjectModel.text.element: ['LanguageName']
-      b.laiso as Language, -- 'KO', 'EN'
+       @UI.hidden: true
+       a.spras,
 
-      @Semantics.text: true
-      @Search.defaultSearchElement: true
-      c.sptxt as LanguageName -- 'Korean', 'English'
+       @UI.textArrangement: #TEXT_LAST
+       @ObjectModel.text.element: ['LanguageName']
+       b.laiso as Language, -- 'KO', 'EN'
+
+       @Semantics.text: true
+       @Search.defaultSearchElement: true
+       a.sptxt as LanguageName -- 'Korean', 'English'
 }
+where
+       a.spras = $session.system_language
+  and(
+       a.sprsl = 'E'
+    or a.sprsl = '3'
+  )

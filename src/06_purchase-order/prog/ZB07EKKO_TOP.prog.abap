@@ -1,6 +1,10 @@
 *&---------------------------------------------------------------------*
 *& 변경이력
 *& 2026-09-03  최초 작성 — devlog: ../../../devlog/rap-dev/2026-09-03.md
+*& 2026-09-04  gs_vend에 glact(계정타입, ZTB07SKA1 조회로 채움) 필드 추가.
+*&             gv_fdgrv/gv_akont/gv_glact(102/130번 화면 텍스트 표시용) 추가.
+*&             gv_base_prod(103/104번 기준 완제품 모델코드, 기본값 'SM-FOLD') 추가 —
+*&             devlog: ../../../devlog/rap-dev/2026-09-04.md
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 *& Include ZB07EKKO_TOP                             - Module Pool      SAPMZB07EKKO
@@ -19,8 +23,11 @@ DATA: ok_code         TYPE sy-ucomm,
       gv_inco1        TYPE char20,            " 인코텀즈 도메인 텍스트
       gv_postat       TYPE zeb07postat,       " 아이템 중 최소 승인/진행상태(추후 F01에서 산출 로직 확정)
       gv_postatxt     TYPE char20,            " 진행상태 도메인 텍스트
-      gv_vend_org     TYPE char20,            " 103번 팝업 - 벤더측 구매조직 텍스트
-      gv_vend_grp     TYPE char20.            " 103번 팝업 - 벤더측 구매그룹 텍스트
+      gv_vend_org     TYPE char20,            " 130번 팝업 - 벤더측 구매조직 텍스트
+      gv_vend_grp     TYPE char20,            " 130번 팝업 - 벤더측 구매그룹 텍스트
+      gv_fdgrv        TYPE char40,            " FDGRV(공급업체 분류) 텍스트(도메인 Fixed Value)
+      gv_akont        TYPE char20,            " AKONT(조정계정) 텍스트
+      gv_glact        TYPE char40.            " GLACT(계정타입) 텍스트
 *&---------------------------------------------------------------------*
 *& 옵션가(구매정보레코드 기준 단가) 조회용 (ZTB07EINA + ZTB07EINE)
 *&---------------------------------------------------------------------*
@@ -121,11 +128,12 @@ DATA: BEGIN OF gs_vend,
         minbw    TYPE ztb07lfa1-minbw,        " 최소주문금액
         fdgrv    TYPE ztb07lfa1-fdgrv,        " 현금관리그룹
         akont    TYPE ztb07lfa1-akont,        " 조정계정
+        glact    TYPE ztb07ska1-glact,        " LFA1엔 없는 필드. AKONT로 ZTB07SKA1 조회해서 채움
         loevm    TYPE ztb07lfa1-loevm,        " 삭제 플래그
       END OF gs_vend,
       gt_vend LIKE TABLE OF gs_vend.
 *&---------------------------------------------------------------------*
-*& BOM(조성비) 조회 (ZTB07BOM - 신규/+α, 실존 미확인 - 추후 DDL 확정)
+*& BOM(조성비) 조회 (ZTB07BOM, 2026-09-04 DDL 확정)
 *&---------------------------------------------------------------------*
 DATA: BEGIN OF gs_bom,
         matnr        TYPE zeb07matnr,
@@ -143,6 +151,7 @@ DATA: BEGIN OF gs_bom_all,
       END OF gs_bom_all,
       gt_bom_all        LIKE TABLE OF gs_bom_all,
       gv_chart_show_all TYPE c.
+DATA: gv_base_prod TYPE zeb07matnr VALUE 'SM-FOLD'.   " 옛 gv_crude 대응(103/104번 기준 완제품), 기본값 SM-FOLD
 *&---------------------------------------------------------------------*
 *& 100번 아이템 ALV 관련 (커스텀 컨테이너)
 *&---------------------------------------------------------------------*

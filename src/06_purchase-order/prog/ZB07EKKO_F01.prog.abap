@@ -9,8 +9,7 @@
 *&             set_init_user_data를 빈 스텁에서 구현으로 채움 — bukrs/ekorg/ekgrp를
 *&             K200/1000/001로 하드코딩(유저 파라미터 로직 없음) 후, 각각 CDS 서치헬프 뷰
 *&             (zi_b07_bukrs_f4/zi_b07_ekorg_f4/zi_b07_ekgrp_f4)에서 정적 SELECT로
-*&             텍스트(gv_bukrs/gv_ekorg/gv_ekgrp) 조회. get_vendor_data 130번 분기 주석에
-*&             EKORG/EKGRP 불필요 명시 — devlog: ../../../devlog/rap-dev/2026-09-05.md
+*&             텍스트(gv_bukrs/gv_ekorg/gv_ekgrp) 조회 — devlog: ../../../devlog/rap-dev/2026-09-05.md
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 *& Include          ZB07EKKO_F01
@@ -321,7 +320,7 @@ FORM get_vendor_data USING pv_pop pv_lifnr.
          AND spras    = @sy-langu.
     ENDIF.
     IF pv_pop = 'X'.
-      " 130번 팝업 전용 — 별도 추가처리 없음(gs_vend에 다 채워짐, EKORG/EKGRP는 130에 없음)
+      " 130번 팝업 전용 — 별도 추가처리 없음(gs_vend에 다 채워짐)
     ELSE.
       gv_dynnr = '0102'.
     ENDIF.

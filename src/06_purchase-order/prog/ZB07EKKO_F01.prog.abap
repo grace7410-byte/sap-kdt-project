@@ -4,6 +4,12 @@
 *&             + 101번 벤더 리스트 조회(set_fcat_vend/get_vendor_all_data)
 *&             + 102/130번 공용 벤더 상세 조회(get_vendor_data/get_domain_text)까지 구현.
 *&             104번(BOM 차트) 관련 Form은 아직 미착수 — devlog: ../../../devlog/rap-dev/2026-09-04.md
+*& 2026-09-05  display_alv의 pt_fcat을 USING → CHANGING으로 이동(SET_TABLE_FOR_FIRST_DISPLAY가
+*&             it_fieldcatalog를 실제로 수정하는 CHANGING 파라미터라 컴파일러가 지적).
+*&             set_init_user_data를 빈 스텁에서 구현으로 채움 — bukrs/ekorg/ekgrp를
+*&             K200/1000/001로 하드코딩(유저 파라미터 로직 없음) 후, 각각 CDS 서치헬프 뷰
+*&             (zi_b07_bukrs_f4/zi_b07_ekorg_f4/zi_b07_ekgrp_f4)에서 정적 SELECT로
+*&             텍스트(gv_bukrs/gv_ekorg/gv_ekgrp) 조회 — devlog: ../../../devlog/rap-dev/2026-09-05.md
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 *& Include          ZB07EKKO_F01
@@ -177,9 +183,9 @@ ENDFORM.
 *&---------------------------------------------------------------------*
 FORM display_alv USING    ps_layout  TYPE lvc_s_layo
                           pt_uifunc  TYPE ui_functions
-                          pt_fcat    TYPE lvc_t_fcat
                  CHANGING po_alv     TYPE REF TO cl_gui_alv_grid
-                          pt_outtab  TYPE ANY TABLE.
+                          pt_outtab  TYPE ANY TABLE
+                          pt_fcat    TYPE lvc_t_fcat.
   CALL METHOD po_alv->set_table_for_first_display
     EXPORTING
       is_layout                     = ps_layout
@@ -215,14 +221,27 @@ FORM control_header_screen.
   ENDLOOP.
 ENDFORM.
 *&---------------------------------------------------------------------*
-*& Form set_init_user_data
+*& Form set_init_user_data (하드코딩 기본값 + CDS 서치헬프 뷰로 텍스트 조회)
 *&---------------------------------------------------------------------*
-*& text
-*&---------------------------------------------------------------------*
-*& -->  p1        text
-*& <--  p2        text
-*&---------------------------------------------------------------------*
-FORM set_init_user_data .
+FORM set_init_user_data.
+  gs_head-bukrs = 'K200'.
+  gs_head-ekorg = '1000'.
+  gs_head-ekgrp = '001'.
+
+  SELECT SINGLE companycodename
+    FROM zi_b07_bukrs_f4
+    WHERE companycode = @gs_head-bukrs
+    INTO @gv_bukrs.
+
+  SELECT SINGLE ekotx
+    FROM zi_b07_ekorg_f4
+    WHERE ekorg = @gs_head-ekorg
+    INTO @gv_ekorg.
+
+  SELECT SINGLE eknam
+    FROM zi_b07_ekgrp_f4
+    WHERE ekgrp = @gs_head-ekgrp
+    INTO @gv_ekgrp.
 ENDFORM.
 *&---------------------------------------------------------------------*
 *& Form set_fcat_vend (101번 벤더 리스트 필드카탈로그)

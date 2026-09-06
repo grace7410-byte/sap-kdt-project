@@ -5,8 +5,8 @@
 *&             gv_fdgrv/gv_akont/gv_glact(102/130번 화면 텍스트 표시용) 추가.
 *&             gv_base_prod(103/104번 기준 완제품 모델코드, 기본값 'SM-FOLD') 추가 —
 *&             devlog: ../../../devlog/rap-dev/2026-09-04.md
-*& 2026-09-05  gv_vend_org/gv_vend_grp 선언 삭제 — 130번 팝업엔 EKORG/EKGRP가
-*&             없음이 확인되어 되돌림 — devlog: ../../../devlog/rap-dev/2026-09-05.md
+*& 2026-09-05  gv_vend_org/gv_vend_grp 선언 삭제(사유 확인 중 — 130번 화면엔
+*&             실제로 EKORG/EKGRP 필드가 존재함) — devlog: ../../../devlog/rap-dev/2026-09-05.md
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 *& Include ZB07EKKO_TOP                             - Module Pool      SAPMZB07EKKO

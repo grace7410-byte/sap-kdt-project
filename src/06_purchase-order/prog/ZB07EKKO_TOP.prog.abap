@@ -5,6 +5,8 @@
 *&             gv_fdgrv/gv_akont/gv_glact(102/130번 화면 텍스트 표시용) 추가.
 *&             gv_base_prod(103/104번 기준 완제품 모델코드, 기본값 'SM-FOLD') 추가 —
 *&             devlog: ../../../devlog/rap-dev/2026-09-04.md
+*& 2026-09-05  gv_vend_org/gv_vend_grp 선언 삭제 — 130번 팝업엔 EKORG/EKGRP가
+*&             없음이 확인되어 되돌림 — devlog: ../../../devlog/rap-dev/2026-09-05.md
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 *& Include ZB07EKKO_TOP                             - Module Pool      SAPMZB07EKKO
@@ -23,8 +25,6 @@ DATA: ok_code         TYPE sy-ucomm,
       gv_inco1        TYPE char20,            " 인코텀즈 도메인 텍스트
       gv_postat       TYPE zeb07postat,       " 아이템 중 최소 승인/진행상태(추후 F01에서 산출 로직 확정)
       gv_postatxt     TYPE char20,            " 진행상태 도메인 텍스트
-      gv_vend_org     TYPE char20,            " 130번 팝업 - 벤더측 구매조직 텍스트
-      gv_vend_grp     TYPE char20,            " 130번 팝업 - 벤더측 구매그룹 텍스트
       gv_fdgrv        TYPE char40,            " FDGRV(공급업체 분류) 텍스트(도메인 Fixed Value)
       gv_akont        TYPE char20,            " AKONT(조정계정) 텍스트
       gv_glact        TYPE char40.            " GLACT(계정타입) 텍스트

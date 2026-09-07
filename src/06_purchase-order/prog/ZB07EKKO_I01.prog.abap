@@ -2,6 +2,8 @@
 *& 변경이력
 *& 2026-09-04  최초 작성. USER_COMMAND_0100/EXIT 골격 생성. 실제 처리 로직(PERFORM)은
 *&             대부분 F01 작성 전까지 주석 처리 상태 — devlog: ../../../devlog/rap-dev/2026-09-04.md
+*& 2026-09-06  WHEN OTHERS의 PERFORM get_vendor_data USING '' gs_head-lifnr. 주석 해제
+*&             (130번 벤더 선택 후 102번 서브스크린 전환 로직 활성화) — devlog: ../../../devlog/rap-dev/2026-09-06.md
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 *& Include          ZB07EKKO_I01
@@ -69,7 +71,7 @@ MODULE user_command_0100 INPUT.
       IF gs_head-lifnr IS NOT INITIAL.
         IF gs_head-lifnr <> gv_before_lifnr.
 *          PERFORM get_header_data.
-*          PERFORM get_vendor_data USING '' gs_head-lifnr.
+          PERFORM get_vendor_data USING '' gs_head-lifnr.
           IF gv_visible = 'X'.
 *            PERFORM get_opti_data.
           ENDIF.

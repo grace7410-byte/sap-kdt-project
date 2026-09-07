@@ -1,12 +1,10 @@
 *&---------------------------------------------------------------------*
 *& 변경이력
 *& 2026-09-03  최초 작성 — devlog: ../../../devlog/rap-dev/2026-09-03.md
-*& 2026-09-04  gs_vend에 glact(계정타입, ZTB07SKA1 조회로 채움) 필드 추가.
-*&             gv_fdgrv/gv_akont/gv_glact(102/130번 화면 텍스트 표시용) 추가.
-*&             gv_base_prod(103/104번 기준 완제품 모델코드, 기본값 'SM-FOLD') 추가 —
+*& 2026-09-04  gs_vend에 glact 필드, gv_fdgrv/gv_akont/gv_glact(102/130 텍스트용), gv_base_prod(103/104 기준 완제품, 'SM-FOLD') 추가 —
 *&             devlog: ../../../devlog/rap-dev/2026-09-04.md
-*& 2026-09-05  gv_vend_org/gv_vend_grp 선언 삭제(사유 확인 중 — 130번 화면엔
-*&             실제로 EKORG/EKGRP 필드가 존재함) — devlog: ../../../devlog/rap-dev/2026-09-05.md
+*& 2026-09-05  gv_vend_org/gv_vend_grp 선언 삭제(사유 확인 중 — 130번 화면엔 실제로 EKORG/EKGRP 필드가 존재함) —
+*&             devlog: ../../../devlog/rap-dev/2026-09-05.md
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 *& Include ZB07EKKO_TOP                             - Module Pool      SAPMZB07EKKO

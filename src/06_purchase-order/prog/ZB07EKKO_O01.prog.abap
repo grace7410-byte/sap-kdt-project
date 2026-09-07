@@ -1,15 +1,11 @@
 *&---------------------------------------------------------------------*
 *& 변경이력
-*& 2026-09-04  최초 작성. 100/101/103/104/130번 화면 관련 PBO 모듈 골격 생성.
-*&             INIT_ALV_0101은 101번 벤더 리스트 ALV 실데이터 조회까지 구현 완료.
-*&             INIT_ALV_0103/INIT_CHART_0103/INIT_CHART_0104는 F01 작성 전까지
-*&             빈 스텁 상태 — devlog: ../../../devlog/rap-dev/2026-09-04.md
-*& 2026-09-05  STATUS_0100에서 GV_VISIBLE = 'X'. 라인 제거(TABSTRIP/아이템 ALV
-*&             상시 노출로 방침 확정에 따른 죽은 코드 정리) + 도메인/CDS 텍스트 조회를
-*&             SET_INIT_USER_DATA 내부로 완전히 이관. INIT_ALV_0101의
-*&             SET HANDLER ON_HOTSPOT_CLICK 주석 처리. DISPLAY_ALV의 PT_FCAT이
-*&             USING → CHANGING으로 이동함에 따라 INIT_ALV/INIT_ALV_0101의
-*&             PERFORM 호출부 시그니처 동기화 — devlog: ../../../devlog/rap-dev/2026-09-05.md
+*& 2026-09-04  최초 작성. 100/101/103/104/130 PBO 모듈 골격 생성, INIT_ALV_0101은 101번 벤더 ALV 실데이터 조회까지 구현(INIT_ALV_0103/INIT_CHART_0103/0104는 빈 스텁) —
+*&             devlog: ../../../devlog/rap-dev/2026-09-04.md
+*& 2026-09-05  GV_VISIBLE='X' 죽은 코드 제거, 도메인/CDS 텍스트 조회 SET_INIT_USER_DATA로 이관, INIT_ALV_0101 SET HANDLER 주석 처리, DISPLAY_ALV PT_FCAT USING→CHANGING 시그니처 동기화 —
+*&             devlog: ../../../devlog/rap-dev/2026-09-05.md
+*& 2026-09-06  INIT_ALV_0101의 SET HANDLER LCL_EVENT_HANDLER=>ON_HOTSPOT_CLICK
+*&             주석 해제(신규 C01의 핫스팟 이벤트 핸들러 연결) — devlog: ../../../devlog/rap-dev/2026-09-06.md
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 *& Include          ZB07EKKO_O01
@@ -125,7 +121,7 @@ MODULE init_alv_0101 OUTPUT.
     PERFORM set_layout USING 4 CHANGING gs_layo_vend.
     PERFORM set_uifunc USING 2 CHANGING gt_uifunc_vend.
     PERFORM set_fcat_vend CHANGING gt_fcat_vend.
-*    SET HANDLER lcl_event_handler=>on_hotspot_click FOR go_alv_vend.
+    SET HANDLER lcl_event_handler=>on_hotspot_click FOR go_alv_vend.
 
     PERFORM display_alv USING gs_layo_vend gt_uifunc_vend
                         CHANGING go_alv_vend gt_vend gt_fcat_vend.

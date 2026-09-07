@@ -1,15 +1,11 @@
 *&---------------------------------------------------------------------*
 *& 변경이력
-*& 2026-09-04  최초 작성. 100번 아이템 ALV 공통 유틸(set_item_number ~ control_header_screen)
-*&             + 101번 벤더 리스트 조회(set_fcat_vend/get_vendor_all_data)
-*&             + 102/130번 공용 벤더 상세 조회(get_vendor_data/get_domain_text)까지 구현.
-*&             104번(BOM 차트) 관련 Form은 아직 미착수 — devlog: ../../../devlog/rap-dev/2026-09-04.md
-*& 2026-09-05  display_alv의 pt_fcat을 USING → CHANGING으로 이동(SET_TABLE_FOR_FIRST_DISPLAY가
-*&             it_fieldcatalog를 실제로 수정하는 CHANGING 파라미터라 컴파일러가 지적).
-*&             set_init_user_data를 빈 스텁에서 구현으로 채움 — bukrs/ekorg/ekgrp를
-*&             K200/1000/001로 하드코딩(유저 파라미터 로직 없음) 후, 각각 CDS 서치헬프 뷰
-*&             (zi_b07_bukrs_f4/zi_b07_ekorg_f4/zi_b07_ekgrp_f4)에서 정적 SELECT로
-*&             텍스트(gv_bukrs/gv_ekorg/gv_ekgrp) 조회 — devlog: ../../../devlog/rap-dev/2026-09-05.md
+*& 2026-09-04  최초 작성. 100번 아이템 ALV 공통 유틸, 101번 벤더 리스트 조회, 102/130 공용 벤더 상세 조회(get_vendor_data/get_domain_text) 구현(104 BOM 차트는 미착수) —
+*&             devlog: ../../../devlog/rap-dev/2026-09-04.md
+*& 2026-09-05  display_alv PT_FCAT USING→CHANGING 이동(컴파일러 지적 해결), set_init_user_data 구현(bukrs/ekorg/ekgrp K200/1000/001 하드코딩 + CDS 서치헬프 뷰 3종 정적 SELECT로 텍스트 조회) —
+*&             devlog: ../../../devlog/rap-dev/2026-09-05.md
+*& 2026-09-06  set_layout pv_type 1/3/4 그리드 타이틀 주석 처리(디자인, 2/5는 유지), GLACT 도메인명 'ZDB07GLACT'→'GLACCOUNT_TYPE' 수정 —
+*&             devlog: ../../../devlog/rap-dev/2026-09-06.md
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 *& Include          ZB07EKKO_F01
@@ -75,18 +71,18 @@ FORM set_layout USING pv_type TYPE i
   ps_layout-zebra    = 'X'.
   ps_layout-sel_mode = 'A'.
   IF pv_type = 1.                        " 100번 아이템 ALV
-    ps_layout-grid_title = '구매오더 아이템'.
+*    ps_layout-grid_title = '구매오더 아이템'.
     IF gv_mode <> 'D'.
       ps_layout-sel_mode = 'B'.
     ENDIF.
   ELSEIF pv_type = 2.                    " 103번 옵션가(EINA/EINE 단가)
     ps_layout-grid_title = '구매정보레코드 기준 단가'.
   ELSEIF pv_type = 3.                    " (200/300 결정 대기) PO 목록
-    ps_layout-grid_title = '구매오더 목록'.
+*    ps_layout-grid_title = '구매오더 목록'.
     ps_layout-sel_mode   = 'B'.
     ps_layout-cwidth_opt = 'X'.
   ELSEIF pv_type = 4.                    " 101번 벤더 리스트
-    ps_layout-grid_title = '공급업체 목록'.
+*    ps_layout-grid_title = '공급업체 목록'.
     ps_layout-cwidth_opt = 'X'.
   ELSEIF pv_type = 5.                    " 104번 BOM 비교
     ps_layout-grid_title = '전사 BOM 구성 비교'.
@@ -307,7 +303,7 @@ FORM get_vendor_data USING pv_pop pv_lifnr.
      WHERE saknr = @gs_vend-akont.
     " 텍스트(설명) 필드 채우기 — 도메인 Fixed Value 텍스트 조회 유틸 재사용
     PERFORM get_domain_text USING 'ZDB07FDGRV' gs_vend-fdgrv CHANGING gv_fdgrv.
-    PERFORM get_domain_text USING 'ZDB07GLACT' gs_vend-glact CHANGING gv_glact.  " ★GLACT 도메인명 확인 필요(표준 GLACCOUNT_TYPE 도메인일 수도)
+    PERFORM get_domain_text USING 'GLACCOUNT_TYPE' gs_vend-glact CHANGING gv_glact.
     " AKONT(조정계정) 이름 — ZTB07SKA1_T에서 SAK_UUID+SY-LANGU로 TXT20 조회
     DATA(lv_sak_uuid) = VALUE ztb07ska1-sak_uuid( ).
     SELECT SINGLE sak_uuid FROM ztb07ska1

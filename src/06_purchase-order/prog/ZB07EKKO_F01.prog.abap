@@ -6,6 +6,8 @@
 *&             devlog: ../../../devlog/rap-dev/2026-09-05.md
 *& 2026-09-06  set_layout pv_type 1/3/4 그리드 타이틀 주석 처리(디자인, 2/5는 유지), GLACT 도메인명 'ZDB07GLACT'→'GLACCOUNT_TYPE' 수정 —
 *&             devlog: ../../../devlog/rap-dev/2026-09-06.md
+*& 2026-09-07  get_header_data/refresh_ekorg_ekgrp_text/clear_header_data(102·130 헤더 텍스트 동기화) 신규,
+*&             get_opti_data/set_fcat_opti/get_chart_data/display_chart/create_chart_object(103 옵션가·BOM차트) 신규 — devlog: ../../../devlog/rap-dev/2026-09-07.md
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 *& Include          ZB07EKKO_F01
@@ -315,8 +317,13 @@ FORM get_vendor_data USING pv_pop pv_lifnr.
        WHERE sak_uuid = @lv_sak_uuid
          AND spras    = @sy-langu.
     ENDIF.
+
+    " 구매조직/구매그룹 텍스트 — GV_EKORG/GV_EKGRP는 100번 헤더와 공용 변수라서,
+    " 130 팝업/102 서브스크린을 표시할 때마다 지금 조회된 벤더 기준으로 다시 채움
+    PERFORM refresh_ekorg_ekgrp_text USING gs_vend-ekorg gs_vend-ekgrp.
+
     IF pv_pop = 'X'.
-      " 130번 팝업 전용 — 별도 추가처리 없음(gs_vend에 다 채워짐)
+      " 130번 팝업 전용 — 위에서 이미 EKORG/EKGRP 텍스트까지 채웠으니 추가처리 없음
     ELSE.
       gv_dynnr = '0102'.
     ENDIF.
@@ -346,4 +353,189 @@ FORM get_domain_text USING    p_gv_domname TYPE any   " ZDB07### 도메인명
       c_gv_text = ls_domain_value-ddtext.
     ENDIF.
   ENDIF.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form get_header_data (130에서 벤더 선택 후 100번 헤더 구매조직/구매그룹 반영)
+*&---------------------------------------------------------------------*
+FORM get_header_data.
+  " 130 팝업에서 SEL_VEND로 선택된 벤더(gs_vend)의 구매조직/구매그룹을
+  " 헤더(gs_head)로 반영. 회사코드(BUKRS)는 ZTB07LFA1에 없는 필드라 그대로 유지.
+  gs_head-ekorg = gs_vend-ekorg.
+  gs_head-ekgrp = gs_vend-ekgrp.
+
+  PERFORM refresh_ekorg_ekgrp_text USING gs_vend-ekorg gs_vend-ekgrp.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form refresh_ekorg_ekgrp_text (GV_EKORG/GV_EKGRP 공용 텍스트 갱신)
+*&---------------------------------------------------------------------*
+FORM refresh_ekorg_ekgrp_text USING pv_ekorg pv_ekgrp.
+  " 매칭 실패 시 이전 값이 남지 않도록 반드시 CLEAR 후 조회
+  CLEAR: gv_ekorg, gv_ekgrp.
+
+  SELECT SINGLE ekotx FROM zi_b07_ekorg_f4
+    WHERE ekorg = @pv_ekorg
+    INTO @gv_ekorg.
+
+  SELECT SINGLE eknam FROM zi_b07_ekgrp_f4
+    WHERE ekgrp = @pv_ekgrp
+    INTO @gv_ekgrp.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form clear_header_data (헤더 표시용 텍스트/부가정보 초기화 — 1기 이식, gs_vend/gt_opti는 미포함)
+*&---------------------------------------------------------------------*
+FORM clear_header_data.
+  CLEAR: gv_name1, gv_ekorg, gv_ekgrp, gv_bukrs, gv_postat, gv_zterm, gv_inco1.
+  CLEAR: gs_head-ekorg, gs_head-ekgrp, gs_head-bukrs, gs_head-zterm, gs_head-inco1,
+         gs_head-zebeln, gs_head-knumh, gs_head-loekz,
+         gs_head-created_by, gs_head-creation_at, gs_head-changed_by, gs_head-changed_at.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form get_opti_data (103번 옵션가 ALV — 벤더 필터 옵셔널, 전체조회 시 공급업체 구분 표시)
+*&---------------------------------------------------------------------*
+FORM get_opti_data.
+  REFRESH gt_opti.
+
+  SELECT a~inf_uuid, a~infnr, a~mat_uuid, a~lif_uuid, c~lifnr, c~name1,
+         b~werks, b~netpr, b~peinh, b~waers, b~bprme
+    FROM ztb07eina AS a
+    INNER JOIN ztb07eine AS b ON a~inf_uuid = b~inf_uuid
+    INNER JOIN ztb07lfa1 AS c ON a~lif_uuid = c~lif_uuid
+   WHERE ( @gs_vend-lif_uuid IS INITIAL OR a~lif_uuid = @gs_vend-lif_uuid )
+     AND a~loekz <> 'X'
+     AND b~loekz <> 'X'
+     AND c~loevm <> 'X'
+    ORDER BY c~lifnr, a~infnr
+    INTO CORRESPONDING FIELDS OF TABLE @gt_opti
+    UP TO 100 ROWS.
+
+  IF sy-subrc = 0.
+    LOOP AT gt_opti ASSIGNING FIELD-SYMBOL(<fs_opti>).
+      SELECT SINGLE matnr FROM ztb07mara
+        INTO @<fs_opti>-matnr
+       WHERE mat_uuid = @<fs_opti>-mat_uuid.
+
+      SELECT SINGLE maktx FROM ztb07mara_t
+        INTO @<fs_opti>-maktx
+       WHERE mat_uuid = @<fs_opti>-mat_uuid
+         AND spras    = @sy-langu.
+    ENDLOOP.
+  ENDIF.
+
+  IF go_alv_pop IS BOUND.
+    go_alv_pop->refresh_table_display( ).
+  ENDIF.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form set_fcat_opti (103번 옵션가 ALV 필드카탈로그)
+*&---------------------------------------------------------------------*
+FORM set_fcat_opti CHANGING ct_fcat_opti TYPE lvc_t_fcat.
+  PERFORM set_fcat TABLES ct_fcat_opti USING:
+        'S' 'FIELDNAME' 'SELECT',  ' ' 'COLTEXT' '선택',        ' ' 'ICON' 'X', ' ' 'JUST' 'C', ' ' 'OUTPUTLEN' '4', ' ' 'EMPHASIZE' 'C110', 'E' ' ' ' ',
+        'S' 'FIELDNAME' 'LIFNR',   ' ' 'COLTEXT' '공급업체',     ' ' 'OUTPUTLEN' '10', ' ' 'REF_TABLE' 'ZTB07LFA1', ' ' 'REF_FIELD' 'LIFNR', 'E' ' ' ' ',
+        'S' 'FIELDNAME' 'NAME1',   ' ' 'COLTEXT' '공급업체명',   ' ' 'OUTPUTLEN' '16', ' ' 'REF_TABLE' 'ZTB07LFA1', ' ' 'REF_FIELD' 'NAME1', 'E' ' ' ' ',
+        'S' 'FIELDNAME' 'INFNR',   ' ' 'COLTEXT' '구매정보번호', ' ' 'OUTPUTLEN' '10', ' ' 'JUST' 'C', ' ' 'EMPHASIZE' 'C110', 'E' ' ' ' ',
+        'S' 'FIELDNAME' 'MATNR',   ' ' 'COLTEXT' '자재',         ' ' 'OUTPUTLEN' '10', ' ' 'JUST' 'C', 'E' ' ' ' ',
+        'S' 'FIELDNAME' 'MAKTX',   ' ' 'COLTEXT' '자재명',       ' ' 'OUTPUTLEN' '20', 'E' ' ' ' ',
+        'S' 'FIELDNAME' 'WERKS',   ' ' 'COLTEXT' '플랜트',       ' ' 'OUTPUTLEN' '6',  ' ' 'JUST' 'C', ' ' 'REF_TABLE' 'ZTB07EINE', ' ' 'REF_FIELD' 'WERKS', 'E' ' ' ' ',
+        'S' 'FIELDNAME' 'NETPR',   ' ' 'COLTEXT' '단가',         ' ' 'OUTPUTLEN' '15', ' ' 'NO_ZERO' 'X', ' ' 'REF_TABLE' 'ZTB07EINE', ' ' 'REF_FIELD' 'NETPR', ' ' 'CFIELDNAME' 'WAERS', 'E' ' ' ' ',
+        'S' 'FIELDNAME' 'PEINH',   ' ' 'COLTEXT' '가격단위',     ' ' 'OUTPUTLEN' '6',  ' ' 'NO_ZERO' 'X', 'E' ' ' ' ',
+        'S' 'FIELDNAME' 'WAERS',   ' ' 'COLTEXT' '통화',         ' ' 'OUTPUTLEN' '6',  ' ' 'JUST' 'C', ' ' 'REF_TABLE' 'ZTB07EINE', ' ' 'REF_FIELD' 'WAERS', 'E' ' ' ' ',
+        'S' 'FIELDNAME' 'BPRME',   ' ' 'COLTEXT' '주문단위',     ' ' 'OUTPUTLEN' '6',  ' ' 'JUST' 'C', ' ' 'REF_TABLE' 'ZTB07EINE', ' ' 'REF_FIELD' 'BPRME', 'E' ' ' ' ',
+        'S' 'FIELDNAME' 'INF_UUID', ' ' 'NO_OUT' 'X', 'E' ' ' ' ',
+        'S' 'FIELDNAME' 'MAT_UUID', ' ' 'NO_OUT' 'X', 'E' ' ' ' ',
+        'S' 'FIELDNAME' 'LIF_UUID', ' ' 'NO_OUT' 'X', 'E' ' ' ' '.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form get_chart_data (103번 자체 BOM 차트 — 기준 완제품 1개 부품 소요량)
+*&---------------------------------------------------------------------*
+FORM get_chart_data.
+  REFRESH gt_bom.
+  CLEAR gv_chart_show.
+
+  " STLNR 자체가 완제품 MATNR(예: 'SM-FOLD')이라 1기처럼 서브쿼리로 그룹 찾을 필요 없음
+  SELECT b~matnr, c~maktx, a~fmeng, a~meins
+    FROM ztb07bom AS a
+    INNER JOIN ztb07mara AS b ON a~comp_uuid = b~mat_uuid
+    LEFT OUTER JOIN ztb07mara_t AS c ON a~comp_uuid = c~mat_uuid AND c~spras = @sy-langu
+   WHERE a~stlnr = @gv_base_prod
+     AND a~fmeng > 0
+     AND a~loekz <> 'X'
+     ORDER BY a~stlkn
+    INTO CORRESPONDING FIELDS OF TABLE @gt_bom.
+
+  IF sy-subrc = 0 AND gt_bom IS NOT INITIAL.
+    gv_chart_show = 'X'.
+    LOOP AT gt_bom ASSIGNING FIELD-SYMBOL(<fs_bom>).
+      <fs_bom>-display_text = |{ <fs_bom>-maktx } ({ <fs_bom>-matnr })|.
+    ENDLOOP.
+  ELSE.
+    CLEAR gv_chart_show.
+  ENDIF.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form display_chart (103번 자체 BOM 차트 렌더링)
+*&---------------------------------------------------------------------*
+FORM display_chart.
+  DATA: lo_ixml         TYPE REF TO if_ixml,
+        lo_ixml_doc     TYPE REF TO if_ixml_document,
+        lo_ixml_sf      TYPE REF TO if_ixml_stream_factory,
+        lo_ixml_ostream TYPE REF TO if_ixml_ostream,
+        lo_encoding     TYPE REF TO if_ixml_encoding,
+        lo_chartdata    TYPE REF TO if_ixml_element,
+        lo_categories   TYPE REF TO if_ixml_element,
+        lo_category     TYPE REF TO if_ixml_element,
+        lo_series       TYPE REF TO if_ixml_element,
+        lo_point        TYPE REF TO if_ixml_element,
+        lo_value        TYPE REF TO if_ixml_element,
+        lo_title        TYPE REF TO if_ixml_element,
+        lo_title_txt    TYPE REF TO if_ixml_element,
+        lv_xstring      TYPE xstring,
+        lv_val_str      TYPE string.
+
+  lo_ixml     = cl_ixml=>create( ).
+  lo_ixml_doc = lo_ixml->create_document( ).
+  lo_encoding = lo_ixml->create_encoding( character_set = 'utf-8' byte_order = 0 ).
+  lo_ixml_doc->set_encoding( lo_encoding ).
+
+  lo_chartdata = lo_ixml_doc->create_simple_element( name = 'ChartData' parent = lo_ixml_doc ).
+
+  lo_title     = lo_ixml_doc->create_simple_element( name = 'Title' parent = lo_chartdata ).
+  lo_title_txt = lo_ixml_doc->create_simple_element( name = 'Text' parent = lo_title ).
+  lo_title_txt->if_ixml_node~set_value( |{ gv_base_prod } 부품 소요량| ).
+
+  lo_categories = lo_ixml_doc->create_simple_element( name = 'Categories' parent = lo_chartdata ).
+  LOOP AT gt_bom INTO gs_bom.
+    lo_category = lo_ixml_doc->create_simple_element( name = 'Category' parent = lo_categories ).
+    lo_category->if_ixml_node~set_value( |{ gs_bom-display_text }| ).
+  ENDLOOP.
+
+  lo_series = lo_ixml_doc->create_simple_element( name = 'Series' parent = lo_chartdata ).
+  lo_series->set_attribute( name = 'label' value = '소요 수량' ).
+
+  LOOP AT gt_bom INTO gs_bom.
+    lo_point = lo_ixml_doc->create_simple_element( name = 'Point' parent = lo_series ).
+    lo_value = lo_ixml_doc->create_simple_element( name = 'Value' parent = lo_point ).
+    lv_val_str = |{ gs_bom-fmeng }|.
+    lo_value->if_ixml_node~set_value( lv_val_str ).
+  ENDLOOP.
+
+  lo_ixml_sf      = lo_ixml->create_stream_factory( ).
+  lo_ixml_ostream = lo_ixml_sf->create_ostream_xstring( lv_xstring ).
+  lo_ixml_doc->render( lo_ixml_ostream ).
+
+  IF go_chart IS BOUND.
+    go_chart->set_data( xdata = lv_xstring ).
+    go_chart->render( ).
+  ENDIF.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form create_chart_object (커스텀 컨테이너 + 차트 엔진 오브젝트 생성 - 공용)
+*&---------------------------------------------------------------------*
+FORM create_chart_object USING pv_area TYPE c
+                      CHANGING po_cont  TYPE REF TO cl_gui_custom_container
+                               po_chart TYPE REF TO cl_gui_chart_engine.
+  CREATE OBJECT po_cont
+    EXPORTING container_name = pv_area.
+  CREATE OBJECT po_chart
+    EXPORTING parent = po_cont.
 ENDFORM.

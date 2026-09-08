@@ -5,6 +5,8 @@
 *&             devlog: ../../../devlog/rap-dev/2026-09-04.md
 *& 2026-09-05  gv_vend_org/gv_vend_grp 선언 삭제(사유 확인 중 — 130번 화면엔 실제로 EKORG/EKGRP 필드가 존재함) —
 *&             devlog: ../../../devlog/rap-dev/2026-09-05.md
+*& 2026-09-07  gv_bukrs/ekorg/ekgrp/zterm/inco1/postatxt char20→char40 통일(회사코드 텍스트 잘림 해결), gs_opti에
+*&             lif_uuid/lifnr/name1, gs_bom에 fmeng/meins 추가 — devlog: ../../../devlog/rap-dev/2026-09-07.md
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 *& Include ZB07EKKO_TOP                             - Module Pool      SAPMZB07EKKO
@@ -16,13 +18,13 @@ DATA: ok_code         TYPE sy-ucomm,
       gv_mode         TYPE c,                 " 처리모드: ' '=생성 / 'U'=수정 / 'D'=삭제조회
       gv_ebeln        TYPE zeb07ebeln,        " 조회/수정 대상 구매오더번호(Unique키, 화면 진입시 세팅)
       gv_name1        TYPE name1,             " 공급업체명 표시용(ZTB07LFA1-NAME1)
-      gv_bukrs        TYPE char20 VALUE '1000', " 회사코드 도메인 텍스트(기본 회사코드 '1000')
-      gv_ekorg        TYPE char20,            " 구매조직 도메인 텍스트
-      gv_ekgrp        TYPE char20,            " 구매그룹 도메인 텍스트
-      gv_zterm        TYPE char20,            " 결제조건 도메인 텍스트
-      gv_inco1        TYPE char20,            " 인코텀즈 도메인 텍스트
+      gv_bukrs        TYPE char40 VALUE '1000', " 회사코드 도메인 텍스트(기본 회사코드 '1000')
+      gv_ekorg        TYPE char40,            " 구매조직 도메인 텍스트
+      gv_ekgrp        TYPE char40,            " 구매그룹 도메인 텍스트
+      gv_zterm        TYPE char40,            " 결제조건 도메인 텍스트
+      gv_inco1        TYPE char40,            " 인코텀즈 도메인 텍스트
       gv_postat       TYPE zeb07postat,       " 아이템 중 최소 승인/진행상태(추후 F01에서 산출 로직 확정)
-      gv_postatxt     TYPE char20,            " 진행상태 도메인 텍스트
+      gv_postatxt     TYPE char40,            " 진행상태 도메인 텍스트
       gv_fdgrv        TYPE char40,            " FDGRV(공급업체 분류) 텍스트(도메인 Fixed Value)
       gv_akont        TYPE char20,            " AKONT(조정계정) 텍스트
       gv_glact        TYPE char40.            " GLACT(계정타입) 텍스트
@@ -36,6 +38,9 @@ DATA: BEGIN OF gs_opti,
         inf_uuid TYPE ztb07eina-inf_uuid,
         infnr    TYPE ztb07eina-infnr,      " 구매정보번호
         mat_uuid TYPE ztb07eina-mat_uuid,
+        lif_uuid TYPE ztb07eina-lif_uuid,
+        lifnr    TYPE ztb07lfa1-lifnr,      " 공급업체(103 전체조회 시 공급업체 구분용)
+        name1    TYPE ztb07lfa1-name1,      " 공급업체명
         matnr    TYPE zeb07matnr,           " 자재번호(ZTB07MARA 조인 결과, 화면표시용)
         maktx    TYPE char40,               " 자재명(ZTB07MARA_T 조인 결과, 화면표시용)
         werks    TYPE ztb07eine-werks,      " 플랜트(정보레코드 아이템 키)
@@ -136,6 +141,8 @@ DATA: BEGIN OF gs_vend,
 DATA: BEGIN OF gs_bom,
         matnr        TYPE zeb07matnr,
         maktx        TYPE char40,
+        fmeng        TYPE ztb07bom-fmeng,
+        meins        TYPE ztb07bom-meins,
         display_text TYPE char40,
       END OF gs_bom,
       gt_bom        LIKE TABLE OF gs_bom,

@@ -6,6 +6,8 @@
 *&             devlog: ../../../devlog/rap-dev/2026-09-05.md
 *& 2026-09-06  INIT_ALV_0101의 SET HANDLER LCL_EVENT_HANDLER=>ON_HOTSPOT_CLICK
 *&             주석 해제(신규 C01의 핫스팟 이벤트 핸들러 연결) — devlog: ../../../devlog/rap-dev/2026-09-06.md
+*& 2026-09-07  SET_DYNNR_TAB에서 벤더/차트 유무 기반 9000 폴백 로직 제거(103은 벤더 없어도 항상 표시),
+*&             INIT_ALV_0103/INIT_CHART_0103 구현(옵션가 ALV + BOM 차트) — devlog: ../../../devlog/rap-dev/2026-09-07.md
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 *& Include          ZB07EKKO_O01
@@ -85,11 +87,6 @@ MODULE set_dynnr_tab OUTPUT.
       gv_dynnr_tab = '0103'.
       tabstrip-activetab = 'TAB1'.
   ENDCASE.
-
-  " 오류/데이터없음 폴백 — 둘 중 하나라도 해당되면 9000(빈 화면)으로
-  IF gs_head-lifnr IS INITIAL OR gv_chart_show IS INITIAL.
-    gv_dynnr_tab = '9000'.
-  ENDIF.
 ENDMODULE.
 
 *&---------------------------------------------------------------------*
@@ -144,8 +141,21 @@ ENDMODULE.
 *&
 *&---------------------------------------------------------------------*
 MODULE init_alv_0103 OUTPUT.
-* SET PF-STATUS 'xxxxxxxx'.
-* SET TITLEBAR 'xxx'.
+  IF go_dialog IS INITIAL.
+    PERFORM create_object USING 'OPTI' ' ' CHANGING go_dialog go_alv_pop.
+
+    PERFORM set_layout USING 2 CHANGING gs_layo_pop.
+    PERFORM set_uifunc USING 2 CHANGING gt_uifunc_pop.
+    PERFORM set_fcat_opti CHANGING gt_fcat_opti.
+
+*   SET HANDLER lcl_event_handler=>on_toolbar FOR go_alv_pop.       " 1기엔 있었으나 2기 C01엔 아직 미구현 — 보류
+*   SET HANDLER lcl_event_handler=>on_user_command FOR go_alv_pop.  " 〃
+
+    PERFORM display_alv USING gs_layo_pop gt_uifunc_pop
+                        CHANGING go_alv_pop gt_opti gt_fcat_opti.
+  ELSE.
+    go_alv_pop->refresh_table_display( ).
+  ENDIF.
 ENDMODULE.
 *&---------------------------------------------------------------------*
 *& Module INIT_CHART_0103 OUTPUT
@@ -153,8 +163,14 @@ ENDMODULE.
 *&
 *&---------------------------------------------------------------------*
 MODULE init_chart_0103 OUTPUT.
-* SET PF-STATUS 'xxxxxxxx'.
-* SET TITLEBAR 'xxx'.
+  PERFORM get_chart_data.
+
+  IF gt_bom IS NOT INITIAL.
+    IF go_chart IS INITIAL.
+      PERFORM create_chart_object USING 'CHART' CHANGING go_cont_chart go_chart.
+    ENDIF.
+    PERFORM display_chart.
+  ENDIF.
 ENDMODULE.
 *&---------------------------------------------------------------------*
 *& Module INIT_CHART_0104 OUTPUT

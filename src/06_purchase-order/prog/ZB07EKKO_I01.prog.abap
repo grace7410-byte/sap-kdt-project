@@ -4,6 +4,8 @@
 *&             대부분 F01 작성 전까지 주석 처리 상태 — devlog: ../../../devlog/rap-dev/2026-09-04.md
 *& 2026-09-06  WHEN OTHERS의 PERFORM get_vendor_data USING '' gs_head-lifnr. 주석 해제
 *&             (130번 벤더 선택 후 102번 서브스크린 전환 로직 활성화) — devlog: ../../../devlog/rap-dev/2026-09-06.md
+*& 2026-09-07  WHEN OTHERS: get_header_data/get_opti_data 주석 해제 및 gv_visible 분기 제거(103은 벤더 유무와
+*&             무관하게 상시 조회), ELSE절 get_vendor_all_data/clear_header_data 주석 해제 — devlog: ../../../devlog/rap-dev/2026-09-07.md
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 *& Include          ZB07EKKO_I01
@@ -70,19 +72,16 @@ MODULE user_command_0100 INPUT.
     WHEN OTHERS.
       IF gs_head-lifnr IS NOT INITIAL.
         IF gs_head-lifnr <> gv_before_lifnr.
-*          PERFORM get_header_data.
+          PERFORM get_header_data.
           PERFORM get_vendor_data USING '' gs_head-lifnr.
-          IF gv_visible = 'X'.
-*            PERFORM get_opti_data.
-          ENDIF.
+          PERFORM get_opti_data.
           gv_before_lifnr = gs_head-lifnr.
         ENDIF.
       ELSE.
-*        PERFORM get_vendor_all_data.
-        IF gv_visible = 'X'.
-*          PERFORM get_opti_data.
-        ENDIF.
-*        PERFORM clear_header_data.
+        PERFORM get_vendor_all_data.
+        CLEAR gs_vend.
+        PERFORM get_opti_data.
+        PERFORM clear_header_data.
       ENDIF.
   ENDCASE.
 ENDMODULE.

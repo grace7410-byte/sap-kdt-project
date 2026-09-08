@@ -34,5 +34,6 @@ FS 문서: `00. 공통(자재타입_SearchHelp)_FS_v10`
 | Search Help | `ZI_B07_POSTAT_F4` | I_DomainFixedValueText (ZDB07POSTAT) | 구매오더 상태(아이템) Value Help (2026-09-08 신규) | [`ZI_B07_POSTAT_F4.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/00_common-searchhelp/cds/ZI_B07_POSTAT_F4.ddls.asddls) |
 | Search Help | `ZI_B07_EBELN_F4` | ZTB07EKKO | 구매오더번호 Value Help (2026-09-08 신규) | [`ZI_B07_EBELN_F4.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/00_common-searchhelp/cds/ZI_B07_EBELN_F4.ddls.asddls) |
 | Search Help | `ZI_B07_KNTTP_F4` | T163K + T163I | 계정지정범주 Value Help (2026-09-08 신규) | [`ZI_B07_KNTTP_F4.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/00_common-searchhelp/cds/ZI_B07_KNTTP_F4.ddls.asddls) |
+| Search Help | `ZI_B07_BSART_F4` | I_DomainFixedValueText (ZDB07BSART) | 문서유형(구매오더) Value Help (2026-09-08 신규, 테스트(2) 과정에서 서치헬프 자체가 없던 것을 발견해 추가 — 상세는 [2026-09-08 개발일지](../devlog/rap-dev/2026-09-08.md) 참고) | [`ZI_B07_BSART_F4.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/00_common-searchhelp/cds/ZI_B07_BSART_F4.ddls.asddls) |
 
 > 네이밍 규칙: `ZI_B##_<Name>_F4`

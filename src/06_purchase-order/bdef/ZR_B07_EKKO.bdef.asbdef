@@ -1,0 +1,137 @@
+// ============================================================
+// 변경이력
+// 2026-09-08  최초 작성. Waers는 헤더/아이템 모두 PO 채번(최초 저장) 전까지만 편집 가능하도록
+//             정적 readonly 대신 동적 field(features:instance)로 제어 — devlog: ../../../devlog/rap-dev/2026-09-08.md
+// ============================================================
+managed implementation in class zbp_r_b07_ekko unique;
+
+strict ( 2 );
+with draft;
+
+define behavior for ZR_B07_EKKO //alias <alias_name>
+persistent table ztb07ekko
+draft table ztb07ekko_d
+lock master
+total etag ChangedAt
+authorization master ( instance )
+etag master LocChangedAt
+{
+  field ( numbering : managed, readonly ) EbelnUuid;
+  field ( readonly ) Ebeln;
+
+  field ( features : instance ) Loekz, Waers;
+
+  create;
+  update;
+  delete ( features : instance );
+
+  determination SetHeaderDefaults on modify { create; }
+  determination SetVendorUuid on modify { create; }
+  determination SetEbelnNumber on save { create; }
+
+  validation CheckRequired on save { create; update; }
+  validation CheckVendorValid on save { create; update; field LifUuid; }
+  validation CheckOrgData on save { create; update; field Bukrs, Ekorg, Ekgrp; }
+
+  draft action Edit;
+  draft action Activate;
+  draft action Resume;
+  draft action Discard;
+
+  draft determine action Prepare
+  {
+    validation CheckRequired;
+    validation CheckVendorValid;
+    validation CheckOrgData;
+  }
+
+  // %action 작동시키기 - 쓴 곳은 인스턴스 피처
+  action ( features : instance ) SetDeletionFlag result [1] $self;
+
+  mapping for ztb07ekko corresponding
+    {
+
+      //      Bedat        = bedat;
+      //      Bsart        = bsart;
+      //      Bukrs        = bukrs;
+      ChangedAt    = changed_at;
+      ChangedBy    = changed_by;
+      CreatedBy    = created_by;
+      CreationAt   = creation_at;
+      EbelnUuid    = ebeln_uuid;
+      //      Ekgrp        = ekgrp;
+      //      Ekorg        = ekorg;
+      //      Inco1        = inco1;
+      //      Knumh        = knumh;
+      LifUuid      = lif_uuid;
+      LocChangedAt = loc_changed_at;
+      //      Loekz        = loekz;
+      //      Name1        = name1;
+      //      Pdesc        = pdesc;
+      //      Waers        = waers;
+      //      Zebeln       = zebeln;
+      //      Zebelnsv     = zebelnsv;
+      //      Zterm        = zterm;
+    }
+
+  association _Ekpo { create; with draft; }
+}
+
+define behavior for ZI_B07_EKPO alias Ekpo
+persistent table ztb07ekpo
+draft table ztb07ekpo_d
+lock dependent by _Ekko
+authorization dependent by _Ekko
+etag dependent by _Ekko
+early numbering
+{
+  update;
+  delete ( features : instance );
+
+  field ( readonly ) EbelnUuid, Ebelp;
+  field ( mandatory : create, readonly : update ) Werks;
+  field ( readonly ) Erekz, Loekz;
+
+  field ( features : instance ) Elikz, Waers;
+
+  determination SetItemDefaults on modify { create; }
+  determination SetInfoRecordDefault on modify { create; update; field Infnr, Werks; }
+  determination SetMaterialUuid on modify { create; update; field Matnr; }
+
+  validation CheckRequired on save { create; update; }
+  validation CheckPositiveQty on save { create; update; field Menge; }
+  validation CheckDuplicateItem on save { create; update; field MatUuid; }
+
+  mapping for ztb07ekpo corresponding
+    {
+      ChangedAt  = changed_at;
+      ChangedBy  = changed_by;
+      CreatedBy  = created_by;
+      CreationAt = creation_at;
+      EbelnUuid  = ebeln_uuid;
+      //      Ebelp      = ebelp;
+      //      Eindt      = eindt;
+      //      Elikz      = elikz;
+      //      Epstp      = epstp;
+      //      Erekz      = erekz;
+      //      Insmk      = insmk;
+      //      Knttp      = knttp;
+      //      Lgort      = lgort;
+      //      Loekz      = loekz;
+      //      Menge      = menge;
+      //      Meins      = meins;
+      //      Mtart      = mtart;
+      //      Mwskz      = mwskz;
+      //      Netpr      = netpr;
+      //      Packno     = packno;
+      //      Postat     = postat;
+      //      Sakto      = sakto;
+      //      Slfdt      = slfdt;
+      //      Txz01      = txz01;
+      //      Waers      = waers;
+      //      Werks      = werks;
+      //      Wrbtr      = wrbtr;
+    }
+
+  association _Ekko { with draft; }
+}

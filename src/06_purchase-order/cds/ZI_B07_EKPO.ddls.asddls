@@ -1,7 +1,11 @@
 // ============================================================
 // 변경이력
 // 2026-09-07  최초 작성 — devlog: ../../../devlog/rap-dev/2026-09-07.md
+// 2026-09-08  자재유형(_MtartText)/G·L계정(_SaknrText)/통화(_WaersText)/세금코드(_MwskzText)/품목범주
+//             (_EpstpText)/재고유형(_InsmkText)/계정지정범주(_KnttpText)/진행상태(_PostatText) 텍스트
+//             Association 추가, 헤더 회사코드(HeaderBukrs) 필드 추가 — devlog: ../../../devlog/rap-dev/2026-09-08.md
 // ============================================================
+@AbapCatalog.viewEnhancementCategory: [#NONE]
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: '구매오더 아이템 Interface View'
 @Metadata.ignorePropagatedAnnotations: true
@@ -15,9 +19,23 @@ define view entity ZI_B07_EKPO
   association [0..1] to ZI_B07_WERKS_F4 as _Werks on  $projection.Werks = _Werks.Plant
   association [0..1] to ZI_B07_LGORT_F4 as _Lgort on  $projection.Werks = _Lgort.Plant
                                                   and $projection.Lgort = _Lgort.StorageLocation
+  association [0..1] to ZI_B07_MTART_F4 as _MtartText on $projection.Mtart = _MtartText.MaterialType
+  association [0..1] to zi_b07_saknr_f4 as _SaknrText on $projection.Sakto = _SaknrText.Saknr
+  association [0..1] to zi_b07_waers_f4 as _WaersText on $projection.Waers = _WaersText.Currency
+
+  association[0..1] to ZI_B07_MWSKZ_F4 as _MwskzText
+    on  $projection.HeaderBukrs = _MwskzText.Bukrs
+    and $projection.Mwskz       = _MwskzText.Mwskz
+  association[0..1] to ZI_B07_EPSTP_F4 as _EpstpText on $projection.Epstp = _EpstpText.Epstp
+  association[0..1] to ZI_B07_INSMK_F4 as _InsmkText on $projection.Insmk = _InsmkText.Insmk
+  association[0..1] to ZI_B07_KNTTP_F4 as _KnttpText on $projection.Knttp = _KnttpText.Knttp
+  association[0..1] to ZI_B07_POSTAT_F4 as _PostatText on $projection.Postat = _PostatText.Postat
 {
   key ebeln_uuid  as EbelnUuid,
   key ebelp       as Ebelp,
+
+      _Ekko.Bukrs   as HeaderBukrs,
+
       mat_uuid    as MatUuid,
       _Mara.Matnr,
       _Mara._MaraText[1: Spras = $session.system_language ].Maktx,
@@ -66,6 +84,13 @@ define view entity ZI_B07_EKPO
       _Mara,
       _Eine,
       _Werks,
-      _Lgort
-
+      _Lgort,
+      _MtartText,
+      _SaknrText,
+      _WaersText,
+      _EpstpText,
+      _InsmkText,
+      _KnttpText,
+      _MwskzText,
+      _PostatText
 }

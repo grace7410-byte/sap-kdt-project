@@ -14,7 +14,7 @@ FS 문서: `02. FI계정관리_FS_v10` · RAP 방식: Managed / V2 OData (No Dra
 | Behavior Implementation | `ZBP_R_B07_SKA1` | - | `CheckDuplicate`/`CheckExist` 구현 완료 (2026-08-26) | [`zbp_r_b07_ska1.clas.abap`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/02_fi-account/bimp/zbp_r_b07_ska1.clas.abap) |
 | Metadata Extension | `ZC_B07_SKA1` | - | List Report / Object Page Annotation | [`ZC_B07_SKA1.ddlx.asddlx`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/02_fi-account/cds/ZC_B07_SKA1.ddlx.asddlx) |
 | Metadata Extension | `ZC_B07_SKA1TEXT` | - | 계정명 Object Page Annotation | [`ZC_B07_SKA1TEXT.ddlx.asddlx`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/02_fi-account/cds/ZC_B07_SKA1TEXT.ddlx.asddlx) |
-| Service Definition | `ZUI_B07_SKA1` | - | ZC_B07_SKA1, ZC_B07_SKA1TEXT expose | - |
+| Service Definition | `ZUI_B07_SKA1` | - | ZC_B07_SKA1, ZC_B07_SKA1TEXT expose | [`ZUI_B07_SKA1.srvd.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/02_fi-account/srv/ZUI_B07_SKA1.srvd.asddls) |
 | Service Binding | `ZUI_B07_SKA1_V2` | - | OData V2 – UI (Fiori Elements) | - |
 
 ## 주요 필드 (ZTB07SKA1)

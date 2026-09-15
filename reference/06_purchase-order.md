@@ -8,6 +8,7 @@ FS 문서: `06. 구매오더_FS`. 동일 FS를 기준으로 **Classic ABAP 이�
 | --- | --- | --- | --- | --- |
 | Table | `ZTB07EKKO` | - | 구매오더 헤더 (UUID PK, 구매오더번호/공급업체/회사코드/구매조직/구매그룹/문서유형/생성일/통화/결제조건/인코텀즈/조건레코드/참조구매오더번호 등) | [`ZTB07EKKO.tabl.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/tables/ZTB07EKKO.tabl.asddls) |
 | Table | `ZTB07EKPO` | - | 구매오더 아이템 (UUID+순번 PK, 자재/구매정보레코드/플랜트/저장위치/수량/가격/세금/납품일정/계정지정 등) | [`ZTB07EKPO.tabl.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/tables/ZTB07EKPO.tabl.asddls) |
+| Table | `ZTB07BOM` | - | BOM 부품구성 마스터 (완제품 1개→부품 N개 정방향 BOM, FMENG 음수트릭으로 완제품/부품 구분) | [`ZTB07BOM.tabl.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/tables/ZTB07BOM.tabl.asddls) |
 | Program | `SAPMZB07EKKO` | - | Module Pool 메인 프로그램. AS-IS(1기 `SAPMZB1MM0004`) 화면 구조 계승, 신규 테이블 기준 재작성. RAP 전환이 아닌 Classic ABAP 이관이며 아래 RAP 오브젝트와 완전히 별개 | [`SAPMZB07EKKO.prog.abap`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/prog/SAPMZB07EKKO.prog.abap) |
 | Include (TOP) | `ZB07EKKO_TOP` | - | 전역 데이터 선언(헤더/아이템/벤더/옵션가/BOM차트/ALV·컨테이너 등) | [`ZB07EKKO_TOP.prog.abap`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/prog/ZB07EKKO_TOP.prog.abap) |
 | Include (PBO) | `ZB07EKKO_O01` | - | 화면 초기화 모듈(100/101/103/104번 ALV·차트, TABSTRIP 서브스크린 결정) | [`ZB07EKKO_O01.prog.abap`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/prog/ZB07EKKO_O01.prog.abap) |

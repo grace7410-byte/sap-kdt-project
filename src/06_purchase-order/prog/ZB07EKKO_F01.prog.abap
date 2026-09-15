@@ -8,6 +8,10 @@
 *&             devlog: ../../../devlog/rap-dev/2026-09-06.md
 *& 2026-09-07  get_header_data/refresh_ekorg_ekgrp_text/clear_header_data(102·130 헤더 텍스트 동기화) 신규,
 *&             get_opti_data/set_fcat_opti/get_chart_data/display_chart/create_chart_object(103 옵션가·BOM차트) 신규 — devlog: ../../../devlog/rap-dev/2026-09-07.md
+*& 2026-09-09  103번 팝업 그리드 타이틀(set_layout pv_type=2) 주석 처리. add_selected_data(103 옵션가 선택 →
+*&             100 아이템 ALV 반영, C01의 on_user_command가 호출)/set_base_prod_listbox(103 "기준 모델"
+*&             VRM 리스트박스, O01의 신규 MODULE이 호출)/confirm_save(100 저장 전 확인 팝업) 신규 —
+*&             devlog: ../../../devlog/rap-dev/2026-09-09.md
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 *& Include          ZB07EKKO_F01
@@ -78,7 +82,7 @@ FORM set_layout USING pv_type TYPE i
       ps_layout-sel_mode = 'B'.
     ENDIF.
   ELSEIF pv_type = 2.                    " 103번 옵션가(EINA/EINE 단가)
-    ps_layout-grid_title = '구매정보레코드 기준 단가'.
+*    ps_layout-grid_title = '구매정보레코드 기준 단가'.
   ELSEIF pv_type = 3.                    " (200/300 결정 대기) PO 목록
 *    ps_layout-grid_title = '구매오더 목록'.
     ps_layout-sel_mode   = 'B'.
@@ -538,4 +542,115 @@ FORM create_chart_object USING pv_area TYPE c
     EXPORTING container_name = pv_area.
   CREATE OBJECT po_chart
     EXPORTING parent = po_cont.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form add_selected_data (103번 옵션가 선택 -> 100번 아이템 ALV 반영)
+*&---------------------------------------------------------------------*
+FORM add_selected_data CHANGING po_alv  TYPE REF TO cl_gui_alv_grid
+                                 pt_data TYPE INDEX TABLE.
+  DATA: lt_rows TYPE lvc_t_row,
+        ls_row  TYPE lvc_s_row.
+
+  po_alv->get_selected_rows( IMPORTING et_index_rows = lt_rows ).
+
+  IF lt_rows IS INITIAL.
+    MESSAGE s102(zmsge_b07) DISPLAY LIKE 'W'.   " 아이템에 추가할 내역을 선택하세요
+    RETURN.
+  ENDIF.
+
+  LOOP AT lt_rows INTO ls_row.
+    READ TABLE gt_opti ASSIGNING FIELD-SYMBOL(<ls_opti>) INDEX ls_row-index.
+    IF sy-subrc <> 0. CONTINUE. ENDIF.
+
+    READ TABLE gt_item ASSIGNING FIELD-SYMBOL(<fs_item>) WITH KEY matnr = ''.
+    IF sy-subrc <> 0.
+      APPEND INITIAL LINE TO gt_item ASSIGNING <fs_item>.
+    ENDIF.
+
+    <fs_item>-mat_uuid = <ls_opti>-mat_uuid.
+    <fs_item>-matnr    = <ls_opti>-matnr.
+    <fs_item>-txz01    = <ls_opti>-maktx.
+    <fs_item>-inf_uuid = <ls_opti>-inf_uuid.
+    <fs_item>-infnr    = <ls_opti>-infnr.
+    <fs_item>-werks    = <ls_opti>-werks.
+    <fs_item>-meins    = <ls_opti>-bprme.
+    <fs_item>-netpr    = <ls_opti>-netpr.
+    <fs_item>-waers    = <ls_opti>-waers.
+    <fs_item>-waersk   = <ls_opti>-waers.   " KRW 단일통화라 waers=waersk
+  ENDLOOP.
+
+  PERFORM set_item_number.
+  IF go_alv IS BOUND.
+    go_alv->refresh_table_display( ).
+  ENDIF.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form set_base_prod_listbox (103번 "기준 모델" 리스트박스 값 세팅 - 완제품(FERT) 목록)
+*&---------------------------------------------------------------------*
+FORM set_base_prod_listbox.
+  TYPES: BEGIN OF ty_prod,
+           matnr TYPE zeb07matnr,
+           maktx TYPE char40,
+         END OF ty_prod.
+  DATA: lt_prod   TYPE TABLE OF ty_prod,
+        lt_values TYPE vrm_values,
+        ls_value  TYPE vrm_value.
+
+  SELECT a~matnr, b~maktx
+    FROM ztb07mara AS a
+    LEFT OUTER JOIN ztb07mara_t AS b
+      ON a~mat_uuid = b~mat_uuid AND b~spras = @sy-langu
+   WHERE a~mtart = 'FERT'
+    INTO CORRESPONDING FIELDS OF TABLE @lt_prod.
+
+  LOOP AT lt_prod INTO DATA(ls_prod).
+    CLEAR ls_value.
+    ls_value-key  = ls_prod-matnr.
+    ls_value-text = |{ ls_prod-maktx } ({ ls_prod-matnr })|.
+    APPEND ls_value TO lt_values.
+  ENDLOOP.
+
+  CALL FUNCTION 'VRM_SET_VALUES'
+    EXPORTING
+      id     = 'GV_BASE_PROD'      " ★SE51 "Value List" 필드에 넣은 ID와 반드시 동일해야 함
+      values = lt_values.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form confirm_save (100번 저장 전 확인 팝업)
+*&---------------------------------------------------------------------*
+FORM confirm_save CHANGING cv_answer TYPE char1.
+  DATA: lv_title TYPE string VALUE '발주 확인',
+        lv_text  TYPE string,
+        lv_count TYPE i,
+        lv_total TYPE dmbtr.
+
+  " 1. 아이템 건수/총액 집계
+  LOOP AT gt_item INTO DATA(ls_item) WHERE matnr IS NOT INITIAL.
+    lv_count = lv_count + 1.
+    lv_total = lv_total + ls_item-dmbtr.
+  ENDLOOP.
+
+  lv_text = |공급업체 [{ gs_vend-lifnr }]에게\n| &&
+            |총 { lv_count }건 KRW 금액으로\n| &&
+            |발주하시겠습니까?|.
+
+*,\n 총액: { lv_total NUMBER = USER }
+
+  CLEAR cv_answer.
+
+  " 2. 팝업 호출
+  CALL FUNCTION 'POPUP_TO_CONFIRM'
+    EXPORTING
+      titlebar              = lv_title
+      text_question         = lv_text
+      text_button_1         = '예'
+      text_button_2         = '아니오'
+      display_cancel_button = ' '
+    IMPORTING
+      answer                = cv_answer
+    EXCEPTIONS
+      text_not_found        = 1
+      OTHERS                = 2.
+
+  cv_answer = COND #( WHEN cv_answer = '1' THEN 'J' ELSE 'N' ).
 ENDFORM.

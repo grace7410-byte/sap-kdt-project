@@ -13,10 +13,16 @@ FS 문서: `06. 구매오더_FS`. 동일 FS를 기준으로 **Classic ABAP 이�
 | Include (PBO) | `ZB07EKKO_O01` | - | 화면 초기화 모듈(100/101/103/104번 ALV·차트, TABSTRIP 서브스크린 결정) | [`ZB07EKKO_O01.prog.abap`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/prog/ZB07EKKO_O01.prog.abap) |
 | Include (PAI) | `ZB07EKKO_I01` | - | 사용자 명령 처리(벤더 선택/저장/삭제 등 100번 메인 흐름) | [`ZB07EKKO_I01.prog.abap`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/prog/ZB07EKKO_I01.prog.abap) |
 | Include (FORM) | `ZB07EKKO_F01` | - | 공통 서브루틴(ALV 유틸, 벤더/옵션가/BOM 차트 조회, 도메인·CDS 텍스트 조회 등) | [`ZB07EKKO_F01.prog.abap`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/prog/ZB07EKKO_F01.prog.abap) |
-| Include (CLASS) | `ZB07EKKO_C01` | - | `lcl_event_handler` — 101번 벤더 ALV 핫스팟 클릭 시 130번 팝업 호출 및 취소 시 헤더 텍스트 원복 | [`ZB07EKKO_C01.prog.abap`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/prog/ZB07EKKO_C01.prog.abap) |
+| Include (CLASS) | `ZB07EKKO_C01` | - | `lcl_event_handler` — 101번 벤더 ALV 핫스팟 클릭 시 130번 팝업 호출 및 취소 시 헤더 텍스트 원복. 103번 옵션가 ALV 툴바에 "아이템 추가" 버튼(`on_toolbar`)을 달고, 클릭 시 선택된 옵션가를 100번 아이템 ALV로 반영(`on_user_command` → F01 `add_selected_data`) | [`ZB07EKKO_C01.prog.abap`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/prog/ZB07EKKO_C01.prog.abap) |
 
 ### 화면 구성
 100(헤더+아이템) · 101(벤더 리스트, 핫스팟→130) · 102(벤더 상세, 100의 서브스크린) · 103(옵션가 ALV + 기준완제품 1개 BOM 차트, TAB1) · 104(3종 비교, TAB2, 미착수) · 130(벤더 상세 팝업) · 200/300(변경/조회, 유지 여부 결정 대기) · 9000(빈 화면 폴백). 120(안내 팝업)은 스킵 확정.
+
+### 진행 상태 메모 (2026-09-09 기준)
+- 103번 옵션가 ALV에 "아이템 추가" 버튼을 달아 선택한 옵션가를 100번 아이템 ALV로 반영하는 흐름 구현 완료(`add_selected_data`).
+- 103번 "기준 모델" 선택용 VRM 리스트박스(`set_base_prod_listbox`, 완제품(FERT) 목록) 구현.
+- 100번 저장(SAVE) 흐름에 저장 전 확인 팝업(`confirm_save`) 연결 — 공급업체 기준 문구로 확인만 받고, 총액 표시는 기존 ALV 단가/총액 필드의 통화 변환 로직이 정리되지 않은 상태라 일단 제외(계산 코드는 남겨둠, 추후 재작업 예정).
+- SAVE/DELETE_ALL 등 실제 저장·삭제 처리(`save_po_data`/`update_po_data`/`delete_po_all` 등)는 여전히 주석 처리된 골격 상태 — 미착수.
 
 ### 진행 상태 메모 (2026-09-07 기준)
 - 100/101/102/130번 화면 및 벤더 조회·헤더 반영 로직 동작 확인. 130 취소 시에도 헤더 자신의 EKORG/EKGRP 텍스트로 정상 복원되도록 처리.
@@ -36,7 +42,7 @@ FS 문서: `06. 구매오더_FS`. 동일 FS를 기준으로 **Classic ABAP 이�
 | Projection | `ZC_B07_EKPO` | ZI_B07_EKPO | 아이템 Projection. 자재/구매정보번호/플랜트/저장위치/세금코드/품목범주/재고유형/계정지정범주/G·L계정 Value Help 연결, `_Ekko`를 `ZC_B07_EKKO`로 redirect | [`ZC_B07_EKPO.ddls.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/cds/ZC_B07_EKPO.ddls.asddls) |
 | MDE | `ZC_B07_EKKO` (ddlx) | - | 헤더 Object Page/List Report MDE, Facet 5개(구매오더/공급업체/구매조직/구매조건/아이템) | [`ZC_B07_EKKO.ddlx.asddlx`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/cds/ZC_B07_EKKO.ddlx.asddlx) |
 | MDE | `ZC_B07_EKPO` (ddlx) | - | 아이템 Object Page MDE, Facet 4개(아이템정보/자재상세/가격및회계/납기및재고) | [`ZC_B07_EKPO.ddlx.asddlx`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/cds/ZC_B07_EKPO.ddlx.asddlx) |
-| Behavior (Root) | `ZR_B07_EKKO` | ZI_B07_EKKO/EKPO | Managed, with draft. 헤더 채번(EbelnUuid managed, Ebeln 넘버레인지 `ZNRB07_EBE`), Determination(SetHeaderDefaults/SetVendorUuid/SetEbelnNumber, 아이템 SetItemDefaults/SetInfoRecordDefault/SetMaterialUuid), Validation(CheckRequired/CheckVendorValid/CheckOrgData, 아이템 CheckRequired/CheckDuplicateItem/CheckPositiveQty), Instance Feature(헤더 삭제플래그/아이템 입고완료 시 삭제 제한), Instance Action(SetDeletionFlag), Early Numbering(아이템 순번 10 단위 자동 채번) | [`ZR_B07_EKKO.bdef.asbdef`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/bdef/ZR_B07_EKKO.bdef.asbdef) · [`zbp_r_b07_ekko.clas.abap`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/bimp/zbp_r_b07_ekko.clas.abap) |
+| Behavior (Root) | `ZR_B07_EKKO` | ZI_B07_EKKO/EKPO | Managed, with draft. 헤더 채번(EbelnUuid managed, Ebeln 넘버레인지 `ZNRB07_EBE`), Determination(SetHeaderDefaults/SetVendorUuid/SetEbelnNumber, 아이템 SetItemDefaults/SetInfoRecordDefault/SetMaterialUuid), Validation(CheckRequired/CheckVendorValid/CheckOrgData, 아이템 CheckRequired/CheckDuplicateItem/CheckPositiveQty), Instance Feature(헤더: 삭제플래그(Loekz, PO 채번 후에만 편집)/Waers(채번 전까지만 편집), 아이템: 입고완료 시 삭제 제한/Waers(신규 생성 중만 편집)/Postat(이미 저장된 아이템만 편집, Waers와 반대 조건)), Instance Action(SetDeletionFlag), Early Numbering(아이템 순번 10 단위 자동 채번) | [`ZR_B07_EKKO.bdef.asbdef`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/bdef/ZR_B07_EKKO.bdef.asbdef) · [`zbp_r_b07_ekko.clas.abap`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/bimp/zbp_r_b07_ekko.clas.abap) |
 | Behavior (Projection) | `ZC_B07_EKKO`/`ZC_B07_EKPO` | ZR_B07_EKKO | Draft Action 5종(Edit/Activate/Resume/Discard/Prepare) + SetDeletionFlag 노출(헤더), CRUD 노출(아이템) | [`ZC_B07_EKKO.bdef.asbdef`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/bdef/ZC_B07_EKKO.bdef.asbdef) |
 | Service | `ZUI_B07_EKKO` (Service Definition) | - | `ZC_B07_EKKO`/`ZC_B07_EKPO` expose | [`ZUI_B07_EKKO.srvd.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/06_purchase-order/srv/ZUI_B07_EKKO.srvd.asddls) |
 | Service | `ZUI_B07_EKKO_V4` (Service Binding) | - | OData V4 UI 서비스 바인딩 — 코드 파일 없음(05번과 동일한 컨벤션) | - |

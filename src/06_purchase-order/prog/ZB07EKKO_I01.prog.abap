@@ -6,6 +6,8 @@
 *&             (130번 벤더 선택 후 102번 서브스크린 전환 로직 활성화) — devlog: ../../../devlog/rap-dev/2026-09-06.md
 *& 2026-09-07  WHEN OTHERS: get_header_data/get_opti_data 주석 해제 및 gv_visible 분기 제거(103은 벤더 유무와
 *&             무관하게 상시 조회), ELSE절 get_vendor_all_data/clear_header_data 주석 해제 — devlog: ../../../devlog/rap-dev/2026-09-07.md
+*& 2026-09-09  SAVE 케이스: PERFORM confirm_save CHANGING gv_answer. 주석 해제(F01에 구현 완료) —
+*&             devlog: ../../../devlog/rap-dev/2026-09-09.md
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 *& Include          ZB07EKKO_I01
@@ -34,7 +36,7 @@ MODULE user_command_0100 INPUT.
 *      PERFORM check_data_before_save CHANGING lv_subrc.
       CHECK lv_subrc = 0.
       CLEAR gv_answer.
-*      PERFORM confirm_save CHANGING gv_answer.
+      PERFORM confirm_save CHANGING gv_answer.
       CHECK gv_answer = 'J'.
       IF gv_mode = 'U'.
 *        PERFORM update_po_data.

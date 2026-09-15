@@ -6,6 +6,9 @@
 //             modify 단계 determination 실행 순서상 SetDefaults보다 앞에 배치(uuid 채움 → 기본값 채움 순).
 //             irtxt 필드명이 Irtxt와 동일해져 corresponding으로 흡수됨에 따라 개별 매핑(Irtxt=txz01) 주석 처리 —
 //             devlog: ../../../devlog/rap-dev/2026-09-02.md
+// 2026-09-09  draft determine action Prepare가 빈 블록으로 남아있던 것을 발견, CheckRequired/CheckDuplicate/
+//             CheckEsokz 3종을 등록(06번 EKKO bdef와 동일 패턴) — Fiori Draft 화면에서 저장 전 실시간 검증이
+//             동작하도록 함 — devlog: ../../../devlog/rap-dev/2026-09-09.md
 // ============================================================
 // NOTE: "예외 처리 및 추가 로직"은 다음 작업일에 이어서 진행 예정이라 아직 미완성입니다.
 managed implementation in class zbp_r_b07_eina unique;
@@ -39,7 +42,12 @@ etag master LocChangedAt
   draft action Activate;
   draft action Resume;
   draft action Discard;
-  draft determine action Prepare { }
+  draft determine action Prepare
+  {
+    validation CheckRequired;
+    validation CheckDuplicate;
+    validation CheckEsokz;
+  }
 
   association _Eine { create; with draft; }
 

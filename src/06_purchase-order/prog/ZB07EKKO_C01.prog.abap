@@ -4,6 +4,9 @@
 *&             호출하는 이벤트 핸들러 클래스 신규 생성 — devlog: ../../../devlog/rap-dev/2026-09-06.md
 *& 2026-09-07  ON_HOTSPOT_CLICK: 130 취소(미선택 종료) 시 GV_EKORG/GV_EKGRP를 헤더 자신의 값 기준으로
 *&             원복하는 ELSE 분기 추가 — devlog: ../../../devlog/rap-dev/2026-09-07.md
+*& 2026-09-09  ON_TOOLBAR/ON_USER_COMMAND 이벤트 핸들러 신규 추가 — 103번 옵션가 ALV에 "아이템 추가" 버튼을
+*&             달고, 선택된 옵션가를 100번 아이템 ALV로 반영(ADD_OPTI → F01의 add_selected_data 호출) —
+*&             devlog: ../../../devlog/rap-dev/2026-09-09.md
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 *& Include          ZB07EKKO_C01
@@ -13,7 +16,9 @@ CLASS lcl_event_handler DEFINITION.
     CLASS-METHODS:
       "[101번] 벤더 ALV에서 핫스팟(LIFNR/NAME1) 클릭 시 130번 팝업 호출
       on_hotspot_click FOR EVENT hotspot_click
-        OF cl_gui_alv_grid IMPORTING e_row_id e_column_id.
+        OF cl_gui_alv_grid IMPORTING e_row_id e_column_id,
+      on_toolbar FOR EVENT toolbar OF cl_gui_alv_grid IMPORTING e_object sender,
+      on_user_command FOR EVENT user_command OF cl_gui_alv_grid IMPORTING e_ucomm sender.
 ENDCLASS.
 
 CLASS lcl_event_handler IMPLEMENTATION.
@@ -42,5 +47,26 @@ CLASS lcl_event_handler IMPLEMENTATION.
         PERFORM refresh_ekorg_ekgrp_text USING gs_head-ekorg gs_head-ekgrp.
       ENDIF.
     ENDIF.
+  ENDMETHOD.
+
+  METHOD on_toolbar.
+    DATA: ls_button TYPE stb_button.
+    IF sender = go_alv_pop.
+      CLEAR ls_button.
+      ls_button-function  = 'ADD_OPTI'.
+      ls_button-icon      = icon_add_shoppingcart.
+      ls_button-text      = '아이템 추가'.
+      ls_button-quickinfo = '선택한 옵션가를 구매오더 아이템으로 반영'.
+      ls_button-disabled  = ' '.
+      APPEND ls_button TO e_object->mt_toolbar.
+    ENDIF.
+  ENDMETHOD.
+
+  "[103번] ADD_OPTI 버튼 클릭 → 선택된 옵션가 → 100번 아이템 ALV 반영
+  METHOD on_user_command.
+    CASE e_ucomm.
+      WHEN 'ADD_OPTI'.
+        PERFORM add_selected_data CHANGING go_alv_pop gt_opti.
+    ENDCASE.
   ENDMETHOD.
 ENDCLASS.

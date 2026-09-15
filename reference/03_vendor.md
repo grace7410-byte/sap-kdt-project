@@ -10,7 +10,7 @@ FS 문서: `03. 밴더관리_FS_v10` · RAP 방식: Managed / V4 OData / With Dr
 | Behavior Definition | `ZR_B07_LFA1` / `ZC_B07_LFA1` | - | Managed, with draft. Field Control/Determination(초기값)/Validation(필수값+조정계정 체크)/자동채번 완료. `field(features:instance) Loevm`(2026-08-26 신규, 생성 시 거래종료 readonly) | [`ZR_B07_LFA1.bdef.asbdef`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/03_vendor/bdef/ZR_B07_LFA1.bdef.asbdef), [`ZC_B07_LFA1.bdef.asbdef`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/03_vendor/bdef/ZC_B07_LFA1.bdef.asbdef) |
 | Behavior Implementation | `ZBP_R_B07_LFA1` | - | `SetInitialDefault`(통화 KRW), `CheckInit`(필수값), `SetVendorNumber`(자동채번, Prefix 'V'+6자리로 채번 오류 해결), `get_instance_features`(거래종료 Loevm 생성 시 readonly, 2026-08-26 신규) 구현 완료 | [`zbp_r_b07_lfa1.clas.abap`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/03_vendor/bimp/zbp_r_b07_lfa1.clas.abap) |
 | Metadata Extension | `ZC_B07_LFA1` | - | List Report / Object Page Annotation | [`ZC_B07_LFA1.ddlx.asddlx`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/03_vendor/cds/ZC_B07_LFA1.ddlx.asddlx) |
-| Service Definition | `ZUI_B07_LFA1` | - | ZC_B07_LFA1 expose | - |
+| Service Definition | `ZUI_B07_LFA1` | - | ZC_B07_LFA1 expose | [`ZUI_B07_LFA1.srvd.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/03_vendor/srv/ZUI_B07_LFA1.srvd.asddls) |
 | Service Binding | `ZUI_B07_LFA1_V4` | - | OData V4 – UI (Fiori Elements) | - |
 
 ## 주요 필드 (ZTB07LFA1)

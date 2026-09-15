@@ -11,11 +11,14 @@
 *             (진짜 원인 — CheckRequired가 화면에 아직 안 채워지는 UUID를 검사하고 있었음). SetInfnrNumber는
 *             연도+뒤 6자리 조합 로직을 제거하고 NUMBER_GET_NEXT 채번 결과를 그대로 사용하도록 단순화 —
 *             devlog: ../../../devlog/rap-dev/2026-09-02.md
-* NOTE: SetVendorMaterialUuid가 존재하지 않는 Lifnr/Matnr 입력값에 대해 에러 처리 없이 그냥 넘어가는 문제가
-*       남아있음(잘못된 값이어도 저장이 통과됨) — 다음 작업일 처리 예정, 아직 코드 미반영.
+* 2026-09-09  SetVendorMaterialUuid: LFA1/MARA 조회 성공 여부를 각각 lv_lfa1_found/lv_mara_found로 분리 추적하도록
+*             수정 — 기존엔 두 번째 READ TABLE(MARA)의 sy-subrc가 첫 번째 READ TABLE(LFA1) 결과를 덮어써서,
+*             LifUuid COND가 실제로는 MARA 조회 결과를 보고 있던 버그. 핸들러 클래스명 lhc_zr_b07_eina→lhc_eina로 변경(아이템 lhc_eine과 짝 맞춤) —
+*             devlog: ../../../devlog/rap-dev/2026-09-09.md
+* NOTE: 존재하지 않는 Lifnr/Matnr 입력값에 대한 에러 처리(존재 여부 실패 시 %msg 반환)는 여전히 미반영 — 다음 작업일 처리 예정.
 * NOTE: "예외 처리 및 추가 로직"은 다음 작업일에 이어서 진행 예정 — WIP 상태입니다.
 *=============================================================
-CLASS lhc_zr_b07_eina DEFINITION INHERITING FROM cl_abap_behavior_handler.
+CLASS lhc_eina DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.
 
     METHODS get_instance_authorizations FOR INSTANCE AUTHORIZATION
@@ -35,7 +38,7 @@ CLASS lhc_zr_b07_eina DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
 ENDCLASS.
 
-CLASS lhc_zr_b07_eina IMPLEMENTATION.
+CLASS lhc_eina IMPLEMENTATION.
 
   METHOD get_instance_authorizations.
   ENDMETHOD.
@@ -60,14 +63,17 @@ CLASS lhc_zr_b07_eina IMPLEMENTATION.
             OR ( MatUuid IS INITIAL AND Matnr IS NOT INITIAL ).
 
       READ TABLE lt_db_lfa1 INTO DATA(ls_db_lfa1) WITH KEY lifnr = ls_eina-Lifnr.
-      READ TABLE lt_db_mara INTO DATA(ls_db_mara) WITH KEY matnr = ls_eina-Matnr.
+      DATA(lv_lfa1_found) = xsdbool( sy-subrc = 0 ).
 
-      APPEND VALUE #( %tky    = ls_eina-%tky
-                       LifUuid = COND #( WHEN ls_eina-LifUuid IS INITIAL AND sy-subrc = 0
-                                         THEN ls_db_lfa1-lif_uuid ELSE ls_eina-LifUuid )
-                       MatUuid = COND #( WHEN ls_eina-MatUuid IS INITIAL
-                                         THEN ls_db_mara-mat_uuid ELSE ls_eina-MatUuid )
-                     ) TO lt_update.
+      READ TABLE lt_db_mara INTO DATA(ls_db_mara) WITH KEY matnr = ls_eina-Matnr.
+      DATA(lv_mara_found) = xsdbool( sy-subrc = 0 ).
+
+      APPEND VALUE #( %tky = ls_eina-%tky
+        LifUuid = COND #( WHEN ls_eina-LifUuid IS INITIAL AND lv_lfa1_found = abap_true
+                           THEN ls_db_lfa1-lif_uuid ELSE ls_eina-LifUuid )
+        MatUuid = COND #( WHEN ls_eina-MatUuid IS INITIAL AND lv_mara_found = abap_true
+                           THEN ls_db_mara-mat_uuid ELSE ls_eina-MatUuid )
+      ) TO lt_update.
     ENDLOOP.
 
     IF lt_update IS NOT INITIAL.

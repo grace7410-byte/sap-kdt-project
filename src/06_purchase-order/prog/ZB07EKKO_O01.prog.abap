@@ -8,6 +8,8 @@
 *&             주석 해제(신규 C01의 핫스팟 이벤트 핸들러 연결) — devlog: ../../../devlog/rap-dev/2026-09-06.md
 *& 2026-09-07  SET_DYNNR_TAB에서 벤더/차트 유무 기반 9000 폴백 로직 제거(103은 벤더 없어도 항상 표시),
 *&             INIT_ALV_0103/INIT_CHART_0103 구현(옵션가 ALV + BOM 차트) — devlog: ../../../devlog/rap-dev/2026-09-07.md
+*& 2026-09-09  INIT_ALV_0103의 SET HANDLER ON_TOOLBAR/ON_USER_COMMAND 주석 해제(C01에 구현 완료).
+*&             SET_BASE_PROD_LISTBOX MODULE 신규(103번 "기준 모델" VRM 리스트박스) — devlog: ../../../devlog/rap-dev/2026-09-09.md
 *&---------------------------------------------------------------------*
 *&---------------------------------------------------------------------*
 *& Include          ZB07EKKO_O01
@@ -148,8 +150,8 @@ MODULE init_alv_0103 OUTPUT.
     PERFORM set_uifunc USING 2 CHANGING gt_uifunc_pop.
     PERFORM set_fcat_opti CHANGING gt_fcat_opti.
 
-*   SET HANDLER lcl_event_handler=>on_toolbar FOR go_alv_pop.       " 1기엔 있었으나 2기 C01엔 아직 미구현 — 보류
-*   SET HANDLER lcl_event_handler=>on_user_command FOR go_alv_pop.  " 〃
+    SET HANDLER lcl_event_handler=>on_toolbar FOR go_alv_pop.
+    SET HANDLER lcl_event_handler=>on_user_command FOR go_alv_pop.
 
     PERFORM display_alv USING gs_layo_pop gt_uifunc_pop
                         CHANGING go_alv_pop gt_opti gt_fcat_opti.
@@ -180,4 +182,10 @@ ENDMODULE.
 MODULE init_chart_0104 OUTPUT.
 * SET PF-STATUS 'xxxxxxxx'.
 * SET TITLEBAR 'xxx'.
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*& Module SET_BASE_PROD_LISTBOX OUTPUT (103번 "기준 모델" 리스트박스 - 완제품 3종)
+*&---------------------------------------------------------------------*
+MODULE set_base_prod_listbox OUTPUT.
+  PERFORM set_base_prod_listbox.
 ENDMODULE.

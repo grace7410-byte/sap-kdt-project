@@ -3,6 +3,12 @@
 // 2026-09-08  최초 작성. Elikz(입고완료) 삭제 제한, Waers(통화) 채번 전까지만 편집 가능하도록
 //             인스턴스 피처 제어, early numbering 시 %is_draft 매핑 누락 수정
 //             — devlog: ../../../devlog/rap-dev/2026-09-08.md
+// 2026-09-09  아이템 get_instance_features에 Postat(이미 저장된 아이템만 편집 가능, Waers와 반대 조건) 추가,
+//             CheckPositiveQty 메시지 번호 022→023으로 변경.
+//             헤더 get_instance_features에 Loekz(PO 채번 후에만 편집 가능) 로직 추가 — BDEF엔 2026-09-08부터
+//             이미 features:instance로 선언되어 있었으나 메서드 구현이 누락돼 있었음.
+//             헤더 CheckRequired가 LifUuid 대신 Lifnr을 검사하도록 수정(화면 입력 필드 기준, 05번과 동일 패턴)
+//             — devlog: ../../../devlog/rap-dev/2026-09-09.md
 // ============================================================
 CLASS lhc_zi_b07_ekpo DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
@@ -59,7 +65,12 @@ CLASS lhc_zi_b07_ekpo IMPLEMENTATION.
                                   = COND #( WHEN line_exists( lt_db_ekpo[ ebeln_uuid = ls_ekpo-EbelnUuid
                                                                           ebelp      = ls_ekpo-Ebelp ] )
                                             THEN if_abap_behv=>fc-f-read_only
-                                            ELSE if_abap_behv=>fc-f-unrestricted ) ) ).
+                                            ELSE if_abap_behv=>fc-f-unrestricted )
+                          %field-Postat
+                                  = COND #( WHEN line_exists( lt_db_ekpo[ ebeln_uuid = ls_ekpo-EbelnUuid
+                                                                          ebelp      = ls_ekpo-Ebelp ] )
+                                            THEN if_abap_behv=>fc-f-unrestricted
+                                            ELSE if_abap_behv=>fc-f-read_only ) ) ).
   ENDMETHOD.
 
   METHOD SetItemDefaults.
@@ -272,7 +283,7 @@ CLASS lhc_zi_b07_ekpo IMPLEMENTATION.
       APPEND VALUE #( %tky = ls_ekpo-%tky ) TO failed-ekpo.
       APPEND VALUE #( %tky = ls_ekpo-%tky
                        %element-Menge = if_abap_behv=>mk-on
-                       %msg = new_message( id = 'ZMSGE_B07' number = '022'
+                       %msg = new_message( id = 'ZMSGE_B07' number = '023'
                                             v1 = 'Quantity' severity = if_abap_behv_message=>severity-error ) )
         TO reported-ekpo.
     ENDLOOP.
@@ -333,7 +344,11 @@ CLASS lhc_ZR_B07_EKKO IMPLEMENTATION.
                           " 추가 구현: 통화(Waers)는 PO 채번(=최초 저장) 전까지만 편집 가능
                           %field-Waers    = COND #( WHEN ls_ekko-Ebeln IS NOT INITIAL
                                                      THEN if_abap_behv=>fc-f-read_only
-                                                     ELSE if_abap_behv=>fc-f-unrestricted ) ) ).
+                                                     ELSE if_abap_behv=>fc-f-unrestricted )
+                          " 삭제표시(Loekz)는 SetDeletionFlag 액션과 마찬가지로 PO가 채번(저장)된 후에만 의미가 있음
+                          %field-Loekz    = COND #( WHEN ls_ekko-Ebeln IS NOT INITIAL
+                                                     THEN if_abap_behv=>fc-f-unrestricted
+                                                     ELSE if_abap_behv=>fc-f-read_only ) ) ).
   ENDMETHOD.
 
   METHOD SetHeaderDefaults.
@@ -434,10 +449,10 @@ CLASS lhc_ZR_B07_EKKO IMPLEMENTATION.
           TO reported-zr_b07_ekko.
       ENDIF.
 
-      IF ls_ekko-LifUuid IS INITIAL.
+      IF ls_ekko-Lifnr IS INITIAL.
         APPEND VALUE #( %tky = ls_ekko-%tky ) TO failed-zr_b07_ekko.
         APPEND VALUE #( %tky = ls_ekko-%tky
-                         %element-LifUuid = if_abap_behv=>mk-on
+                         %element-Lifnr = if_abap_behv=>mk-on
                          %msg = new_message( id = 'ZMSGE_B07'
                                               number = '015'
                                               v1 = 'Vendor'

@@ -51,3 +51,5 @@
 3. FI 계정관리 (SKA1)
 4. 공급업체(벤더)관리 (LFA1)
 5. 회계계정결정관리 (T030)
+6. 구매정보레코드관리 (EINA/EINE)
+7. 구매오더관리 (EKKO/EKPO, RAP + Classic ABAP 병행)

@@ -10,7 +10,7 @@ FS 문서: `04. 회계계정결정관리_FS_v10` · RAP 방식: Managed / V2 ODa
 | Behavior Definition | `ZR_B07_T030` / `ZC_B07_T030` | ZTB07T030 | Managed, strict(2), No Draft | [`ZR_B07_T030.bdef.asbdef`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/04_account-determination/bdef/ZR_B07_T030.bdef.asbdef), [`ZC_B07_T030.bdef.asbdef`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/04_account-determination/bdef/ZC_B07_T030.bdef.asbdef) |
 | Behavior Implementation | `ZBP_R_B07_T030` | - | 순번 자동채번, 계정 존재 검증, 차/대변 텍스트 결정. `CheckExist`(평가클래스/전기키/차대변/회계결정코드 필수값+존재 여부), `CheckDuplicate`(이동유형+회계결정코드+평가클래스+계정 조합 중복 체크, 2026-08-26 신규) | [`zbp_r_b07_t030.clas.abap`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/04_account-determination/bimp/zbp_r_b07_t030.clas.abap) |
 | Metadata Extension | `ZC_B07_T030` | - | List Report / Object Page Annotation (facet 2개: 회계결정정보/계정정보) | [`ZC_B07_T030.ddlx.asddlx`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/04_account-determination/cds/ZC_B07_T030.ddlx.asddlx) |
-| Service Definition | `ZUI_B07_T030` | - | ZC_B07_T030 expose | - |
+| Service Definition | `ZUI_B07_T030` | - | ZC_B07_T030 expose | [`ZUI_B07_T030.srvd.asddls`](https://github.com/grace7410-byte/sap-kdt-project/blob/main/src/04_account-determination/srv/ZUI_B07_T030.srvd.asddls) |
 | Service Binding | `ZUI_B07_T030_V2` | - | OData V2 – UI (Fiori Elements) | - |
 
 ## 주요 필드 (ZTB07T030)
